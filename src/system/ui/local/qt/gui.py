@@ -8,11 +8,11 @@
 
 from PyQt4 import QtCore, QtGui
 
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
+#    try:
+#        _fromUtf8 = QtCore.QString.fromUtf8
+#    except AttributeError:
+def _fromUtf8(s):
+    return s
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
@@ -173,7 +173,10 @@ class Ui_MainWindow(object):
         self.fLblTime.setText(_translate("MainWindow", "00:00", None))
         self.label_2.setText(_translate("MainWindow", "Volume", None))
 
-
+class TUiLocalEvent:
+    fType   = 0
+    fArgs   = None
+    
 if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
