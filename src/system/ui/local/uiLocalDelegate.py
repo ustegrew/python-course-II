@@ -4,17 +4,20 @@ Created on Aug 15, 2019
 @author: peter
 '''
 from system.ui.uiDelegate import VUiDelegate
+from system.ui.local.qt.gui import Ui_MainWindow
 
 class TUiLocalDelegate (VUiDelegate):
     '''
     Delegate for the local UI. 
     '''
 
-    def __init__(self, params):
+    def __init__(self, facade):
         '''
         Constructor
         '''
-
+        self.fUI        = Ui_MainWindow (self)
+        self.fFrontend  = facade
+        
     def SetPlaylist (self, items):
         '''
         Fills the UI's playlist with the given items. Any pre-existing entries 
@@ -47,6 +50,11 @@ class TUiLocalDelegate (VUiDelegate):
         '''
         raise NotImplementedError ("Not yet implemented")
 
+    def Start (self):
+        '''
+        Starts the UI
+        '''
+        self.fUI.runMe ()
 
     def Handle (self, event):
         '''

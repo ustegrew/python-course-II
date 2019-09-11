@@ -46,3 +46,11 @@ class VUiDelegate (VDelegateBase):
         @param sec:       (int)         Current playback time, second part.
         '''
         pass
+
+    @abstractmethod
+    def Start (self):
+        '''
+        Starts the UI
+        '''
+        pass
+    
