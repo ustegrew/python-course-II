@@ -31,20 +31,55 @@ except AttributeError:
         return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_MainWindow(object):
-    
     def __init__ (self, delegate):
         '''
         cTor. Sets the delegate which connects us to the application logic. 
         '''
-        self.fDelegate = delegate
+        self.fDelegate  = delegate
+        self.fHasSongLoaded = False
+        self.fIsPlaying = False
     
-    def runMe (self):    
+    def RunMe (self):    
         app = QtGui.QApplication(sys.argv)
         MainWindow = QtGui.QMainWindow()
         self._setupUi(MainWindow)
+        self.fLstSongs.addItem ("Song 1")
+        self.fLstSongs.addItem ("Song 2")
+        self.fLstSongs.addItem ("Song 3")
+        self.fBtnPlay.setEnabled (self.fHasSongLoaded)
         MainWindow.show()
         sys.exit(app.exec_())
 
+    def SetPlaylist (self, items):
+        pass
+    
+    def SetCurrentTrackInfo (self, artist, title):
+        pass
+    
+    def SetCurrentTime (self, hr, min, sec):
+        pass
+
+    def _Handle_BtnPlay_Click (self):
+        if self.fIsPlaying:
+            self.fIsPlaying = False
+        else:
+            self.fIsPlaying = True
+        
+        if self.fIsPlaying:
+            print ("Playing")
+            self.fBtnPlay.setText ("Pause")
+        else:
+            print ("Paused")
+            self.fBtnPlay.setText ("Play")
+    
+    def _Handle_LstPlaylist_Select (self, item):
+        self.fHasSongLoaded = True
+        self.fBtnPlay.setEnabled (self.fHasSongLoaded)
+        print (item.text())
+    
+    def _Handle_SldVolume_ChangeValue (self):
+        print (self.fSldVolume.value ())
+    
     def _setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(965, 600)
@@ -183,6 +218,10 @@ class Ui_MainWindow(object):
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
         MainWindow.setStatusBar(self.statusbar)
+
+        self.fBtnPlay.clicked.connect           (self._Handle_BtnPlay_Click)
+        self.fLstSongs.itemClicked.connect      (self._Handle_LstPlaylist_Select)
+        self.fSldVolume.sliderMoved.connect     (self._Handle_SldVolume_ChangeValue)
 
         self._retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

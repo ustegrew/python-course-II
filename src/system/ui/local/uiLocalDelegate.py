@@ -54,7 +54,7 @@ class TUiLocalDelegate (VUiDelegate):
         '''
         Starts the UI
         '''
-        self.fUI.runMe ()
+        self.fUI.RunMe ()
 
     def Handle (self, event):
         '''
