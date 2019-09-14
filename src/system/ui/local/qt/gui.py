@@ -31,15 +31,23 @@ except AttributeError:
         return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_MainWindow(object):
+    '''
+    Local UI. Uses a delegate to integrate with the application logic. 
+    '''
+    
     def __init__ (self, delegate):
         '''
-        cTor. Sets the delegate which connects us to the application logic. 
+        cTor. Sets the delegate which connects us to the application logic.
+        Just a (dumb) frontend, i.e. does not implement any application logic.
         '''
         self.fDelegate      = delegate
         self.fHasSongLoaded = False
         self.fIsPlaying     = False
     
-    def RunMe (self):    
+    def RunMe (self):
+        '''
+        Runs the UI, i.e. sets the window up, shows it and starts the Qt UI loop.
+        '''    
         app = QtGui.QApplication(sys.argv)
         MainWindow = QtGui.QMainWindow()
         self._setupUi(MainWindow)
@@ -47,24 +55,58 @@ class Ui_MainWindow(object):
         sys.exit(app.exec_())
 
     def SetPlaylist (self, items):
+        '''
+        Fills the LH (playlist) list widget with track names, so the user can 
+        select the next track to play. 
+        
+        @param items: (string []) A list of info strings denoting the tracks.
+                                  Each item best in format "Artist - Title".
+        '''
         pass
     
     def SetCurrentTrackInfo (self, artist, title):
+        '''
+        Sets the info which track is currently loaded/playing.
+        
+        @param artist: (string)    Artist who made the current track.
+        @param title : (string)    Title of the current track.
+        '''
         pass
     
     def SetCurrentTime (self, hr, min, sec):
+        '''
+        Sets the time denoting the current playback position.
+        
+        @param hr : (int)    Current time, hrs
+        @param min: (int)    Current time, minutes
+        @param sec: (int)    Current time, seconds
+        '''
         pass
 
     def _Handle_BtnPlay_Click (self):
+        '''
+        Event handler: User clicked "Play"/"Pause" button.
+        '''
         pass
     
     def _Handle_LstPlaylist_Select (self, item):
+        '''
+        Event handler: User clicked item in playlist.
+        
+        @param: item: (QtGUI::QListWidgetItem): The item clicked.
+        '''
         pass
     
     def _Handle_SldVolume_ChangeValue (self):
+        '''
+        Event handler: Volume slider moved.
+        '''
         pass
     
     def _setupUi(self, MainWindow):
+        '''
+        GUI setup. Created by pyuic compiler.
+        '''
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(965, 600)
         self.centralwidget = QtGui.QWidget(MainWindow)
@@ -219,6 +261,9 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Volume", None))
     
 class TUiLocalEvent:
+    '''
+    A UI event. To pass events to the delegate.
+    '''
     fType   = 0
     fArgs   = None
 
