@@ -32,7 +32,14 @@ except AttributeError:
         return QtGui.QApplication.translate(context, text, disambig)
 
 class VlcPlayer (Thread):
+    '''
+    VLC player (aka - media system) simulator. Just updates the time display on 
+    the main GUI like a media player would. Does nothing else.
+    '''
     def __init__ (self, hostUI, stopFlag):
+        '''
+        cTor.
+        '''
         Thread.__init__ (self)
         self.hostUI = hostUI
         self.stop   = stopFlag
@@ -41,6 +48,10 @@ class VlcPlayer (Thread):
         self.sec    = -1
 
     def run (self):
+        '''
+        run loop. Updates the UI's current time display every second, so it looks
+        like something's playing.
+        '''
         while not self.stop.wait (1):
             self.sec = self.sec + 1
             if self.sec >= 60:
@@ -54,16 +65,26 @@ class VlcPlayer (Thread):
             
 
 class Ui_MainWindow(object):
+    '''
+    Local UI (bad example). Besides UI logic we have entire application logic 
+    crammed in here, too. Result is a spaghetti mess which isn't very extensible
+    either (e.g. hard to implement any other UI type such as the web ui). As it
+    grows changes will become harder.
+    '''
+    
     def __init__ (self):
         '''
-        cTor. Sets the delegate which connects us to the application logic. 
+        cTor.
         '''
         self.fHasSongLoaded = False
         self.fIsPlaying     = False
         self.fStopFlag      = None
         self.fVlc           = None
     
-    def RunMe (self):    
+    def RunMe (self):
+        '''
+        Runs the UI, i.e. sets the window up, shows it and starts the Qt UI loop.
+        '''    
         app = QtGui.QApplication(sys.argv)
         MainWindow = QtGui.QMainWindow()
         self._setupUi(MainWindow)
@@ -75,16 +96,39 @@ class Ui_MainWindow(object):
         sys.exit(app.exec_())
 
     def SetPlaylist (self, items):
+        '''
+        Fills the LH (playlist) list widget with track names, so the user can 
+        select the next track to play. 
+        
+        @param items: (string []) A list of info strings denoting the tracks.
+                                  Each item best in format "Artist - Title".
+        '''
         for x in items:
             self.fLstSongs.addItem (x)
     
     def SetCurrentTrackInfo (self, artist, title):
+        '''
+        Sets the info which track is currently loaded/playing.
+        
+        @param artist: (string)    Artist who made the current track.
+        @param title : (string)    Title of the current track.
+        '''
         self.fLblSongTitle.setText ("%s - %s" % (artist, title))
     
     def SetCurrentTime (self, hr, min, sec):
+        '''
+        Sets the time denoting the current playback position.
+        
+        @param hr : (int)    Current time, hrs
+        @param min: (int)    Current time, minutes
+        @param sec: (int)    Current time, seconds
+        '''
         self.fLblTime.setText ("%02d:%02d:%02d" % (hr, min, sec))
 
     def _Handle_BtnPlay_Click (self):
+        '''
+        Event handler: User clicked "Play"/"Pause" button.
+        '''
         if self.fIsPlaying:
             self.fIsPlaying = False
         else:
@@ -102,12 +146,20 @@ class Ui_MainWindow(object):
             self.fBtnPlay.setText ("Play")
     
     def _Handle_LstPlaylist_Select (self, item):
+        '''
+        Event handler: User clicked item in playlist.
+        
+        @param: item: (QtGUI::QListWidgetItem): The item clicked.
+        '''
         self.SetCurrentTrackInfo(item.text (), item.text ())
         self.fHasSongLoaded = True
         self.fBtnPlay.setEnabled (self.fHasSongLoaded)
         print (item.text())
     
     def _Handle_SldVolume_ChangeValue (self):
+        '''
+        Event handler: Volume slider moved.
+        '''
         print (self.fSldVolume.value ())
     
     def _setupUi(self, MainWindow):
