@@ -11,6 +11,7 @@
 # messiness into its corner and close the door on it...
 
 import sys
+from threading import Thread, Event
 from PyQt4 import QtCore, QtGui
 
 # Disabled try... construct as I got a linker error on QtCore.QString. No clue
@@ -30,34 +31,58 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
+class VlcPlayer (Thread):
+    def __init__ (self, hostUI, stopFlag):
+        Thread.__init__ (self)
+        self.hostUI = hostUI
+        self.stop   = stopFlag
+        self.hr     = 0
+        self.min    = 0
+        self.sec    = -1
+
+    def run (self):
+        while not self.stop.wait (1):
+            self.sec = self.sec + 1
+            if self.sec >= 60:
+                self.sec = 0
+                self.min = self.min + 1
+            if self.min >= 60:
+                self.sec = 0
+                self.min = 0
+                self.hr  = self.hr + 1
+            self.hostUI.SetCurrentTime (self.hr, self.min, self.sec)
+            
+
 class Ui_MainWindow(object):
-    def __init__ (self, delegate):
+    def __init__ (self):
         '''
         cTor. Sets the delegate which connects us to the application logic. 
         '''
-        self.fDelegate  = delegate
         self.fHasSongLoaded = False
-        self.fIsPlaying = False
+        self.fIsPlaying     = False
+        self.fStopFlag      = None
+        self.fVlc           = None
     
     def RunMe (self):    
         app = QtGui.QApplication(sys.argv)
         MainWindow = QtGui.QMainWindow()
         self._setupUi(MainWindow)
-        self.fLstSongs.addItem ("Song 1")
-        self.fLstSongs.addItem ("Song 2")
-        self.fLstSongs.addItem ("Song 3")
+        self.SetPlaylist(
+            ["Song 1", "Song 2", "Song 3"]    
+        )
         self.fBtnPlay.setEnabled (self.fHasSongLoaded)
         MainWindow.show()
         sys.exit(app.exec_())
 
     def SetPlaylist (self, items):
-        pass
+        for x in items:
+            self.fLstSongs.addItem (x)
     
     def SetCurrentTrackInfo (self, artist, title):
-        pass
+        self.fLblSongTitle.setText ("%s - %s" % (artist, title))
     
     def SetCurrentTime (self, hr, min, sec):
-        pass
+        self.fLblTime.setText ("%02d:%02d:%02d" % (hr, min, sec))
 
     def _Handle_BtnPlay_Click (self):
         if self.fIsPlaying:
@@ -66,13 +91,18 @@ class Ui_MainWindow(object):
             self.fIsPlaying = True
         
         if self.fIsPlaying:
+            self.fStopFlag      = Event ()
+            self.fVlc           = VlcPlayer (self, self.fStopFlag)
+            self.fVlc.start ()
             print ("Playing")
             self.fBtnPlay.setText ("Pause")
         else:
+            self.fStopFlag.set ()
             print ("Paused")
             self.fBtnPlay.setText ("Play")
     
     def _Handle_LstPlaylist_Select (self, item):
+        self.SetCurrentTrackInfo(item.text (), item.text ())
         self.fHasSongLoaded = True
         self.fBtnPlay.setEnabled (self.fHasSongLoaded)
         print (item.text())

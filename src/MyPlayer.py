@@ -3,11 +3,11 @@ Created on Sep 11, 2019
 
 @author: peter
 '''
-from app.frontend.bFrontend import TFrontend
+from system.ui.local.qt.gui import Ui_MainWindow
 
 def main ():
-    TFrontend.CreateInstance ()
-    TFrontend.RunUI ()
+    ui = Ui_MainWindow ()
+    ui.RunMe ()
 
 if __name__ == '__main__':
     main ()
