@@ -43,10 +43,6 @@ class Ui_MainWindow(object):
         app = QtGui.QApplication(sys.argv)
         MainWindow = QtGui.QMainWindow()
         self._setupUi(MainWindow)
-        self.fLstSongs.addItem ("Song 1")
-        self.fLstSongs.addItem ("Song 2")
-        self.fLstSongs.addItem ("Song 3")
-        self.fBtnPlay.setEnabled (self.fHasSongLoaded)
         MainWindow.show()
         sys.exit(app.exec_())
 
@@ -60,25 +56,13 @@ class Ui_MainWindow(object):
         pass
 
     def _Handle_BtnPlay_Click (self):
-        if self.fIsPlaying:
-            self.fIsPlaying = False
-        else:
-            self.fIsPlaying = True
-        
-        if self.fIsPlaying:
-            print ("Playing")
-            self.fBtnPlay.setText ("Pause")
-        else:
-            print ("Paused")
-            self.fBtnPlay.setText ("Play")
+        pass
     
     def _Handle_LstPlaylist_Select (self, item):
-        self.fHasSongLoaded = True
-        self.fBtnPlay.setEnabled (self.fHasSongLoaded)
-        print (item.text())
+        pass
     
     def _Handle_SldVolume_ChangeValue (self):
-        print (self.fSldVolume.value ())
+        pass
     
     def _setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
