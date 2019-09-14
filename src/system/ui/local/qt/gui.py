@@ -35,9 +35,9 @@ class Ui_MainWindow(object):
         '''
         cTor. Sets the delegate which connects us to the application logic. 
         '''
-        self.fDelegate  = delegate
+        self.fDelegate      = delegate
         self.fHasSongLoaded = False
-        self.fIsPlaying = False
+        self.fIsPlaying     = False
     
     def RunMe (self):    
         app = QtGui.QApplication(sys.argv)
