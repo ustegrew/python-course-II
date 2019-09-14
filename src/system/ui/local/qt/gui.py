@@ -163,6 +163,9 @@ class Ui_MainWindow(object):
         print (self.fSldVolume.value ())
     
     def _setupUi(self, MainWindow):
+        '''
+        GUI setup. Created by pyuic compiler.
+        '''
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(965, 600)
         self.centralwidget = QtGui.QWidget(MainWindow)
@@ -301,6 +304,7 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
         MainWindow.setStatusBar(self.statusbar)
 
+        # Connect event handlers
         self.fBtnPlay.clicked.connect           (self._Handle_BtnPlay_Click)
         self.fLstSongs.itemClicked.connect      (self._Handle_LstPlaylist_Select)
         self.fSldVolume.sliderMoved.connect     (self._Handle_SldVolume_ChangeValue)
