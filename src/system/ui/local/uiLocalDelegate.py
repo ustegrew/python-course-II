@@ -62,5 +62,5 @@ class TUiLocalDelegate (VUiDelegate):
         
         @param event: (TUiLocalEvent)    The event
         '''
-        raise NotImplementedError ("Not yet implemented")
+        print ("uiDelegate event (nothing else implemented): %s" % event)
     

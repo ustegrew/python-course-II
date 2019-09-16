@@ -40,9 +40,7 @@ class Ui_MainWindow(object):
         cTor. Sets the delegate which connects us to the application logic.
         Just a (dumb) frontend, i.e. does not implement any application logic.
         '''
-        self.fDelegate      = delegate
-        self.fHasSongLoaded = False
-        self.fIsPlaying     = False
+        self.fDelegate = delegate
     
     def RunMe (self):
         '''
@@ -51,6 +49,7 @@ class Ui_MainWindow(object):
         app = QtGui.QApplication(sys.argv)
         MainWindow = QtGui.QMainWindow()
         self._setupUi(MainWindow)
+        self.SetPlaylist (["a", "b", "c"])
         MainWindow.show()
         sys.exit(app.exec_())
 
@@ -62,7 +61,9 @@ class Ui_MainWindow(object):
         @param items: (string []) A list of info strings denoting the tracks.
                                   Each item best in format "Artist - Title".
         '''
-        pass
+        self.fLstSongs.clear ()
+        for x in items:
+            self.fLstSongs.addItem (x)
     
     def SetCurrentTrackInfo (self, artist, title):
         '''
@@ -71,23 +72,46 @@ class Ui_MainWindow(object):
         @param artist: (string)    Artist who made the current track.
         @param title : (string)    Title of the current track.
         '''
-        pass
+        a = "Unknown Artist"
+        t = "Unknown Track"
+        if artist is not None:
+            a = "%s" % artist
+        if title is not None:
+            t = "%s" % title
+        self.fLblSongTitle.setText ("%s - %s" % (a, t))
     
-    def SetCurrentTime (self, hr, min, sec):
+    def SetCurrentTime (self, hr, mn, sec):
         '''
         Sets the time denoting the current playback position.
         
         @param hr : (int)    Current time, hrs
-        @param min: (int)    Current time, minutes
+        @param mn : (int)    Current time, minutes
         @param sec: (int)    Current time, seconds
         '''
-        pass
-
+        # Here I was trying to be clever, but it results in code
+        # which isn't immediately obvious. Good programmers write
+        # dumb code, so see dumb code below. This code is too clever
+        # to be useful, because it isn't immediately obvious what it does.
+        # h = ""
+        # m = ""
+        # if hr >= 1:
+        #     h = "%02d" % hr
+        #     m = ":"
+        # m = "%s%02d" % (m, mn)     # m may be preset to ":"
+        # s = ":%02d" % (sec)
+        
+        # Here's the dumb code. I find it easier to understand... maybe I'm dumb, too?
+        if hr <= 0:
+            t = "%02d:%02d" % (mn, sec)
+        else:
+            t = "%02d:%02d:%02d" % (hr, mn, sec)
+        self.fLblTime.setText (t)
+        
     def _Handle_BtnPlay_Click (self):
         '''
         Event handler: User clicked "Play"/"Pause" button.
         '''
-        pass
+        self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvBtnPlayClicked, None))
     
     def _Handle_LstPlaylist_Select (self, item):
         '''
@@ -95,13 +119,23 @@ class Ui_MainWindow(object):
         
         @param: item: (QtGUI::QListWidgetItem): The item clicked.
         '''
-        pass
+        xSel = self.fLstSongs.selectedIndexes ()
+        if (len(xSel) >= 1):
+            iItem = xSel[0].row ()
+            self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvTrackSelected, iItem))
     
     def _Handle_SldVolume_ChangeValue (self):
         '''
         Event handler: Volume slider moved.
         '''
-        pass
+        vol = self.fSldVolume.value ()
+        self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvVolumeChanged, vol))
+    
+    def _Handle_UIInitFinished (self):
+        '''
+        Event handler: UI initialized and ready.
+        '''
+        self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvUIInitFinished, None))
     
     def _setupUi(self, MainWindow):
         '''
@@ -265,6 +299,17 @@ class TUiLocalEvent:
     '''
     A UI event. To pass events to the delegate.
     '''
-    fType   = 0
-    fArgs   = None
+    kEvUIInitFinished   = 1000
+    kEvBtnPlayClicked   = 1010
+    kEvTrackSelected    = 1020
+    kEvVolumeChanged    = 1030
 
+    def __init__ (self, ev, arg):    
+        self.fEv     = ev
+        self.fArg    = arg
+    
+    def __repr__ (self):
+        '''
+        for debugging ... so that we get sensible output when calling print()
+        '''
+        return "{fEv:%s,fArg:%s}" % (self.fEv, self.fArg)
