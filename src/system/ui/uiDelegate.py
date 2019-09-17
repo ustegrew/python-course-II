@@ -36,7 +36,7 @@ class VUiDelegate (VDelegateBase):
         pass
 
     @abstractmethod
-    def SetCurrentTime (self, hr, min, sec):
+    def SetCurrentTime (self, hr, mn, sec):
         '''
         Sets the current time info corresponding to the play position of the 
         currently selected track.
@@ -54,3 +54,8 @@ class VUiDelegate (VDelegateBase):
         '''
         pass
     
+    @abstractmethod
+    def Teardown (self):
+        '''
+        Disposes he UI when the application finishes.
+        '''
