@@ -46,7 +46,8 @@ class Ui_MainWindow(object):
         '''
         Runs the UI, i.e. sets the window up, shows it and starts the Qt UI loop.
         '''    
-        app = QtGui.QApplication(sys.argv)
+        app = QtGui.QApplication (sys.argv)
+        app.aboutToQuit.connect (self._Handle_AppExit)
         MainWindow = QtGui.QMainWindow()
         self._setupUi(MainWindow)
         self.SetPlaylist (["a", "b", "c"])
@@ -122,6 +123,16 @@ class Ui_MainWindow(object):
         else:
             t = "%02d:%02d:%02d" % (hr, mn, sec)
         self.fLblTime.setText (t)
+    
+    def _Handle_AppExit (self, event):
+        '''
+        can also do
+        if can_exit:
+            event.accept ()
+        else:
+            event.ignore ()
+        '''
+        self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvAppExit, None))
         
     def _Handle_BtnPlay_Click (self):
         '''
@@ -247,7 +258,7 @@ class Ui_MainWindow(object):
         self.fBtnPlay.setFont(font)
         self.fBtnPlay.setCheckable(False)
         self.fBtnPlay.setObjectName(_fromUtf8("fBtnPlay"))
-        self.fBtnPlay.setStyleSheet("QPushButton:disabled { color: gray }")
+        self.fBtnPlay.setStyleSheet("QPushButton:disabled { color: gray };QPushButton:enabled { color: red }")
         self.horizontalLayout_2.addWidget(self.fBtnPlay)
         spacerItem2 = QtGui.QSpacerItem(197, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem2)
@@ -331,6 +342,7 @@ class TUiLocalEvent:
     kEvBtnPlayClicked   = 1020
     kEvTrackSelected    = 1030
     kEvVolumeChanged    = 1040
+    kEvAppExit          = 9999
 
     def __init__ (self, ev, arg):    
         self.fEv     = ev

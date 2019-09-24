@@ -19,19 +19,18 @@ class TFrontend:
         self.fController.Handle (self.fController.kEventInitStarted)
     
     def Handle_EventUIInitFinished (self):
-        print ("UI init finished")
         self.fController.Handle (self.fController.kEventInitFinished)
-    
+
+    def Handle_RequestAppExit (self):
+        self.fController.Handle (self.fController.kEventExitStarted)
+            
     def Handle_RequestChoseTrack (self, iTrack):
-        print ("Chose track: %s" % iTrack)
         self.fController.Handle (self.fController.kEventChoseSong, iTrack)
     
     def Handle_RequestChangedVolume (self, xVolume):
-        print ("Changed volume: %s" % xVolume)
         self.fController.Handle (self.fController.kEventVolumeUpdate, xVolume)
     
     def Handle_RequestTogglePlayPause (self):
-        print ("Play/Pause")
         self.fController.Handle (self.fController.kEventPlayToggled)
     
     def RunUI (self):

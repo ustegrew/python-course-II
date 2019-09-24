@@ -3,6 +3,7 @@ Created on Sep 21, 2019
 
 @author: peter
 '''
+import threading
 
 class TController:
     '''
@@ -31,13 +32,18 @@ class TController:
         '''
         Constructor
         '''
-        self.fFrontend  = None
-        self.fState     = self.kStateNull
+        self.fLock          = threading.Lock ()
+        self.fFrontend      = None
+        self.fMediasystem   = None
+        self.fState         = self.kStateNull
     
-    def Handle (self, event, param=None):
+    def Handle (self, event, param = None):
         doSetUI     = True
         state0      = self.fState
+        paramKey    = None
+        paramValue  = param
         
+        self.fLock.acquire ()
         if self.fState  == self.kStateNull:
 
             if event == self.kEventInitStarted:
@@ -48,33 +54,47 @@ class TController:
 
             if event == self.kEventInitFinished:
                 self.fState = self.kStateWait
+                self._SetTrack (0)
 
                 
         elif self.fState == self.kStateWait:
 
             if event == self.kEventExitStarted:
                 self.fState = self.kStateTerminating
+            elif event == self.kEventChoseSong:
+                self.fState = self.kStateWait
+                paramKey    = "iTrack"
+                self._SetTrack (paramValue)
             elif event == self.kEventMediaPlayerPreloaded:
                 self.fState = self.kStatePaused
+            elif event == self.kEventVolumeUpdate:
+                self.fState = self.kStateWait
+                doSetUI     = False
+                paramKey    = "xVolume"
 
                 
         elif self.fState == self.kStatePaused:
 
             if event == self.kEventChoseSong:
                 self.fState = self.kStateWait
+                paramKey    = "iTrack"
+                self._SetTrack (paramValue)
             elif event == self.kEventExitStarted:
                 self.fState = self.kStateTerminating
             elif event == self.kEventPlayToggled:
                 self.fState = self.kStatePlaying
             elif event == self.kEventVolumeUpdate:
-                doSetUI     = False
                 self.fState = self.kStatePaused
+                doSetUI     = False
+                paramKey    = "xVolume"
 
                 
         elif self.fState == self.kStatePlaying:
 
             if event == self.kEventChoseSong:
                 self.fState = self.kStateWait
+                paramKey    = "iTrack"
+                self._SetTrack (paramValue)
             elif event == self.kEventExitStarted:
                 self.fState = self.kStateTerminating
             elif event == self.kEventPlayToggled:
@@ -85,8 +105,9 @@ class TController:
             elif event == self.kEventSongFinished:
                 self.fState = self.kStateWait
             elif event == self.kEventVolumeUpdate:
-                doSetUI     = False
                 self.fState = self.kStatePlaying
+                doSetUI     = False
+                paramKey    = "xVolume"
 
                 
         elif self.fState == self.kStateTerminating:
@@ -97,18 +118,27 @@ class TController:
         elif self.fState == self.kStateTerminated:
             pass
         
+        self.fLock.release ()
+        
         if doSetUI:
             self._SetUI ()
-        self._DumpTransition(state0, event, self.fState)
+        if paramKey is None:
+            self._DumpTransition(state0, event, self.fState)
+        else:
+            self._DumpTransition(state0, event, self.fState, paramKey, paramValue)
     
-    def SetOthers (self, frontend):
-        self.fFrontend = frontend
+    def SetOthers (self, mediasystem, frontend):
+        self.fMediasystem   = mediasystem
+        self.fFrontend      = frontend
     
-    def _DumpTransition (self, state0, event, state1):
+    def _DumpTransition (self, state0, event, state1, paramKey = None, paramValue = None):
         st0 = self._GetStateName (state0)
         st1 = self._GetStateName (state1)
         ev  = self._GetEventName (event)
-        print ("%-20s (%-30s) -> %-20s" % (st0, ev, st1))
+        if paramKey is None:
+            print ("%-20s (%-49s) -> %-20s" % (st0, ev, st1)) 
+        else:
+            print ("%-20s (%-30s [%10s=%-5s]) -> %-20s" % (st0, ev, paramKey, paramValue, st1))
         
     def _GetEventName (self, event):
         ret = "? %s ?" % event
@@ -136,21 +166,27 @@ class TController:
     
     def _GetStateName (self, state):
         ret = "? %s ?" % state
-        if self.fState  == self.kStateNull:
+        if state  == self.kStateNull:
             ret = "kStateNull"
-        elif self.fState == self.kStateInitializing:
+        elif state == self.kStateInitializing:
             ret = "kStateInitializing"
-        elif self.fState == self.kStateWait:
+        elif state == self.kStateWait:
             ret = "kStateWait"
-        elif self.fState == self.kStatePaused:
+        elif state == self.kStatePaused:
             ret = "kStatePaused"
-        elif self.fState == self.kStatePlaying:
+        elif state == self.kStatePlaying:
             ret = "kStatePlaying"
-        elif self.fState == self.kStateTerminating:
+        elif state == self.kStateTerminating:
             ret = "kStateTerminating"
-        elif self.fState == self.kStateTerminated:
+        elif state == self.kStateTerminated:
             ret = "kStateTerminated"
         return ret
+    
+    def _SetDisposed (self):
+        self.fMediasystem.Dispose ()
+    
+    def _SetTrack (self, iTrack):
+        self.fMediasystem.LoadTrack ("")
     
     def _SetUI (self):
         if self.fState  == self.kStateNull:
@@ -158,7 +194,7 @@ class TController:
         elif self.fState == self.kStateInitializing:
             pass
         elif self.fState == self.kStateWait:
-            self.fFrontend.SetEnabled_Playlist          (True)
+            self.fFrontend.SetEnabled_Playlist          (False)
             self.fFrontend.SetEnabled_PlayPauseButton   (False)
         elif self.fState == self.kStatePaused:
             self.fFrontend.SetEnabled_Playlist          (True)

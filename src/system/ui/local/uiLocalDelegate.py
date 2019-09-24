@@ -97,4 +97,6 @@ class TUiLocalDelegate (VUiDelegate):
             self.fFrontend.Handle_RequestChoseTrack (event.fArg)
         elif event.fEv == TUiLocalEvent.kEvVolumeChanged:
             self.fFrontend.Handle_RequestChangedVolume (event.fArg)
+        elif event.fEv == TUiLocalEvent.kEvAppExit:
+            self.fFrontend.Handle_RequestAppExit ()
     
