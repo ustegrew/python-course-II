@@ -48,6 +48,24 @@ class VUiDelegate (VDelegateBase):
         pass
 
     @abstractmethod
+    def SetEnabled_Playlist (self, flag):
+        '''
+        Enables / disables the playlist.
+        
+        @param flag: (bool)    If TRUE, enable playlist. If FALSE, disable playlist.
+        '''
+        pass
+    
+    @abstractmethod
+    def SetEnabled_PlayPauseButton (self, flag):
+        '''
+        Enables / disables the play/pause button
+        
+        @param flag: (bool)    If TRUE, enable button. If FALSE, disable button.
+        '''
+        pass
+    
+    @abstractmethod
     def Start (self):
         '''
         Starts the UI

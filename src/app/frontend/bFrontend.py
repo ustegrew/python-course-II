@@ -3,80 +3,69 @@ Created on Sep 10, 2019
 
 @author: peter
 '''
-from system.ui.local.uiLocalDelegate import TUiLocalDelegate
-
 class TFrontend:
     '''
     Frontend facade. Set up as a singleton.
     '''
 
-    @staticmethod
-    def CreateInstance ():
-        if TFrontend._gInstance is None:
-            TFrontend._gInstance = TFrontend ()
-    
-    @staticmethod
-    def RunUI ():
-        TFrontend._AssertHasUI ()
-        TFrontend._gInstance._RunUI ()
-    
-    @staticmethod
-    def SetCurrentTime (hr, mn, sec):
-        TFrontend._AssertHasUI ()
-        TFrontend._gInstance._SetCurrentTime (hr, mn, sec)
-    
-    @staticmethod
-    def SetCurrentTrackInfo (artist, title):
-        TFrontend._AssertHasUI ()
-        TFrontend._gInstance._SetCurrentTrackInfo (artist, title)
-    
-    @staticmethod
-    def SetPlaylist (items):
-        TFrontend._AssertHasUI ()
-        TFrontend._gInstance._SetPlaylist (items)
-    
-    @staticmethod
-    def Teardown ():
-        TFrontend._AssertHasUI ()
-        TFrontend._gInstance._Teardown ()
-
-    @staticmethod
-    def _AssertHasUI ():
-        if TFrontend._gInstance is None:
-            raise NotImplementedError ("Did you forget to TFrontend::CreateInstance () ?")
-    
-    _gInstance = None
-    
     def __init__(self):
         '''
         cTor.
         '''
-        self.fUI = TUiLocalDelegate (self)
+        self.fController = None
+        self.fUI         = None
+    
+    def Handle_EventUIInitStarted (self):
+        self.fController.Handle (self.fController.kEventInitStarted)
     
     def Handle_EventUIInitFinished (self):
         print ("UI init finished")
+        self.fController.Handle (self.fController.kEventInitFinished)
     
     def Handle_RequestChoseTrack (self, iTrack):
         print ("Chose track: %s" % iTrack)
+        self.fController.Handle (self.fController.kEventChoseSong, iTrack)
     
     def Handle_RequestChangedVolume (self, xVolume):
         print ("Changed volume: %s" % xVolume)
+        self.fController.Handle (self.fController.kEventVolumeUpdate, xVolume)
     
     def Handle_RequestTogglePlayPause (self):
         print ("Play/Pause")
+        self.fController.Handle (self.fController.kEventPlayToggled)
     
-    def _RunUI (self):
+    def RunUI (self):
         self.fUI.Start ()
     
-    def _SetCurrentTime (self, hr, mn, sec):
+    def SetEnabled_Playlist (self, flag):
+        '''
+        Enables / disables the playlist.
+        
+        @param flag: (bool)    If TRUE, enable playlist. If FALSE, disable playlist.
+        '''
+        self.fUI.SetEnabled_Playlist (flag)
+    
+    def SetEnabled_PlayPauseButton (self, flag):
+        '''
+        Enables / disables the play/pause button
+        
+        @param flag: (bool)    If TRUE, enable button. If FALSE, disable button.
+        '''
+        self.fUI.SetEnabled_PlayPauseButton (flag)
+    
+    def SetCurrentTime (self, hr, mn, sec):
         self.fUI.SetCurrentTime (hr, mn, sec)
     
-    def _SetCurrentTrackInfo (self, artist, title):
+    def SetCurrentTrackInfo (self, artist, title):
         self.fUI.SetCurrentTrackInfo (artist, title)
     
-    def _SetPlaylist (self, items):
+    def SetPlaylist (self, items):
         self.fUI.SetPlaylist (items)
     
-    def _Teardown (self):
+    def SetOthers (self, controller, uiDelegate):
+        self.fController = controller
+        self.fUI         = uiDelegate
+    
+    def Teardown (self):
         self.fUI.Teardown ()
 

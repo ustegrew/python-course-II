@@ -11,12 +11,12 @@ class TUiLocalDelegate (VUiDelegate):
     Delegate for the local UI. 
     '''
 
-    def __init__(self, facade):
+    def __init__(self):
         '''
         Constructor
         '''
         self.fUI        = Ui_MainWindow (self)
-        self.fFrontend  = facade
+        self.fFrontend  = None
         
     def SetPlaylist (self, items):
         '''
@@ -50,6 +50,25 @@ class TUiLocalDelegate (VUiDelegate):
         '''
         self.fUI.SetCurrentTime (hr, mn, sec)
 
+    def SetEnabled_Playlist (self, flag):
+        '''
+        Enables / disables the playlist.
+        
+        @param flag: (bool)    If TRUE, enable playlist. If FALSE, disable playlist.
+        '''
+        self.fUI.SetEnabled_Playlist (flag)
+
+    def SetEnabled_PlayPauseButton (self, flag):
+        '''
+        Enables / disables the play/pause button
+        
+        @param flag: (bool)    If TRUE, enable play button. If FALSE, disable play button.
+        '''
+        self.fUI.SetEnabled_PlayPauseButton (flag)
+    
+    def SetOthers (self, facade):
+        self.fFrontend = facade
+    
     def Start (self):
         '''
         Starts the UI
@@ -68,12 +87,14 @@ class TUiLocalDelegate (VUiDelegate):
         
         @param event: (TUiLocalEvent)    The event
         '''
-        if event.fEv == TUiLocalEvent.kEvUIInitFinished:
+        if event.fEv == TUiLocalEvent.kEvUIInitStarted:
+            self.fFrontend.Handle_EventUIInitStarted ()
+        elif event.fEv == TUiLocalEvent.kEvUIInitFinished:
             self.fFrontend.Handle_EventUIInitFinished ()
-        if event.fEv == TUiLocalEvent.kEvBtnPlayClicked:
+        elif event.fEv == TUiLocalEvent.kEvBtnPlayClicked:
             self.fFrontend.Handle_RequestTogglePlayPause ()
-        if event.fEv == TUiLocalEvent.kEvTrackSelected:
+        elif event.fEv == TUiLocalEvent.kEvTrackSelected:
             self.fFrontend.Handle_RequestChoseTrack (event.fArg)
-        if event.fEv == TUiLocalEvent.kEvVolumeChanged:
+        elif event.fEv == TUiLocalEvent.kEvVolumeChanged:
             self.fFrontend.Handle_RequestChangedVolume (event.fArg)
     

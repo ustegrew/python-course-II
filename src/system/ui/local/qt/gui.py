@@ -53,6 +53,22 @@ class Ui_MainWindow(object):
         MainWindow.show()
         sys.exit(app.exec_())
 
+    def SetEnabled_Playlist (self, flag):
+        '''
+        Enables / disables the playlist
+        
+        @param flag: (bool)    If TRUE, enable playlist. If FALSE, disable playlist.
+        '''
+        self.fLstSongs.setEnabled (flag)
+
+    def SetEnabled_PlayPauseButton (self, flag):
+        '''
+        Enables / disables the play/pause button
+        
+        @param flag: (bool)    If TRUE, enable button. If FALSE, disable button.
+        '''
+        self.fBtnPlay.setEnabled (flag)
+
     def SetPlaylist (self, items):
         '''
         Fills the LH (playlist) list widget with track names, so the user can 
@@ -137,10 +153,18 @@ class Ui_MainWindow(object):
         '''
         self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvUIInitFinished, None))
     
+    def _Handle_UIInitStarted (self):
+        '''
+        Event handler: UI begins initialization.
+        '''
+        self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvUIInitStarted, None))
+    
     def _setupUi(self, MainWindow):
         '''
         GUI setup. Created by pyuic compiler.
         '''
+        self._Handle_UIInitStarted ()
+
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(965, 600)
         self.centralwidget = QtGui.QWidget(MainWindow)
@@ -223,6 +247,7 @@ class Ui_MainWindow(object):
         self.fBtnPlay.setFont(font)
         self.fBtnPlay.setCheckable(False)
         self.fBtnPlay.setObjectName(_fromUtf8("fBtnPlay"))
+        self.fBtnPlay.setStyleSheet("QPushButton:disabled { color: gray }")
         self.horizontalLayout_2.addWidget(self.fBtnPlay)
         spacerItem2 = QtGui.QSpacerItem(197, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem2)
@@ -286,6 +311,8 @@ class Ui_MainWindow(object):
 
         self._retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        
+        self._Handle_UIInitFinished ()
 
     def _retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "myplayer", None))
@@ -299,10 +326,11 @@ class TUiLocalEvent:
     '''
     A UI event. To pass events to the delegate.
     '''
-    kEvUIInitFinished   = 1000
-    kEvBtnPlayClicked   = 1010
-    kEvTrackSelected    = 1020
-    kEvVolumeChanged    = 1030
+    kEvUIInitStarted    = 1000
+    kEvUIInitFinished   = 1010
+    kEvBtnPlayClicked   = 1020
+    kEvTrackSelected    = 1030
+    kEvVolumeChanged    = 1040
 
     def __init__ (self, ev, arg):    
         self.fEv     = ev
