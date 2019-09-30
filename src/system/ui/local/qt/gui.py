@@ -12,6 +12,7 @@
 
 import sys
 from PyQt4 import QtCore, QtGui
+from PyQt4.Qt import QWidget, QObject, pyqtSignal
 
 # Disabled try... construct as I got a linker error on QtCore.QString. No clue
 # why, and it's not worth following up. We just define the _fromUtf8 function 
@@ -30,17 +31,24 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
-class Ui_MainWindow(object):
+class Ui_MainWindow (QObject):
     '''
     Local UI. Uses a delegate to integrate with the application logic. 
     '''
+    fSigSetPlaylist                = pyqtSignal (list)
+    fSigSetCurrentTrackInfo        = pyqtSignal (str, str)
+    fSigSetEnabledPlaylist         = pyqtSignal (bool)
+    fSigSetEnabledPlayPauseButton  = pyqtSignal (bool)
+    _gInstance                      = None
     
     def __init__ (self, delegate):
         '''
         cTor. Sets the delegate which connects us to the application logic.
         Just a (dumb) frontend, i.e. does not implement any application logic.
         '''
-        self.fDelegate = delegate
+        super (Ui_MainWindow, self).__init__ ()
+        self.fDelegate                      = delegate
+        Ui_MainWindow._gInstance            = self
     
     def RunMe (self):
         '''
@@ -60,15 +68,15 @@ class Ui_MainWindow(object):
         
         @param flag: (bool)    If TRUE, enable playlist. If FALSE, disable playlist.
         '''
-        self.fLstSongs.setEnabled (flag)
-
+        self.fSigSetEnabledPlaylist.emit (flag)
+    
     def SetEnabled_PlayPauseButton (self, flag):
         '''
         Enables / disables the play/pause button
         
         @param flag: (bool)    If TRUE, enable button. If FALSE, disable button.
         '''
-        self.fBtnPlay.setEnabled (flag)
+        self.fSigSetEnabledPlayPauseButton.emit (flag)
 
     def SetPlaylist (self, items):
         '''
@@ -124,7 +132,7 @@ class Ui_MainWindow(object):
             t = "%02d:%02d:%02d" % (hr, mn, sec)
         self.fLblTime.setText (t)
     
-    def _Handle_AppExit (self, event):
+    def _Handle_AppExit (self):
         '''
         can also do
         if can_exit:
@@ -170,6 +178,24 @@ class Ui_MainWindow(object):
         '''
         self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvUIInitStarted, None))
     
+    @QtCore.pyqtSlot (bool)
+    def _SetEnabled_Playlist (self, flag):
+        '''
+        Enables / disables the playlist
+        
+        @param flag: (bool)    If TRUE, enable playlist. If FALSE, disable playlist.
+        '''
+        Ui_MainWindow._gInstance.fLstSongs.setEnabled (flag)
+    
+    @QtCore.pyqtSlot (bool)
+    def _SetEnabled_PlayPauseButton (self, flag):
+        '''
+        Enables / disables the play/pause button
+        
+        @param flag: (bool)    If TRUE, enable button. If FALSE, disable button.
+        '''
+        Ui_MainWindow._gInstance.fBtnPlay.setEnabled (flag)
+
     def _setupUi(self, MainWindow):
         '''
         GUI setup. Created by pyuic compiler.
@@ -258,7 +284,11 @@ class Ui_MainWindow(object):
         self.fBtnPlay.setFont(font)
         self.fBtnPlay.setCheckable(False)
         self.fBtnPlay.setObjectName(_fromUtf8("fBtnPlay"))
-        self.fBtnPlay.setStyleSheet("QPushButton:disabled { color: gray };QPushButton:enabled { color: red }")
+        self.fBtnPlay.setStyleSheet(
+            "QPushButton:disabled{background-color:#d0d0d0;color:#e0e0e0} " +
+            "QPushButton:enabled{background-color:#a0a0f0;color:orange} " +
+            "QPushButton:focus{background-color:#a0a0f0;color:orange} "
+        )
         self.horizontalLayout_2.addWidget(self.fBtnPlay)
         spacerItem2 = QtGui.QSpacerItem(197, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem2)
@@ -316,9 +346,11 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         # Connect event handlers
-        self.fBtnPlay.clicked.connect           (self._Handle_BtnPlay_Click)
-        self.fLstSongs.itemClicked.connect      (self._Handle_LstPlaylist_Select)
-        self.fSldVolume.sliderMoved.connect     (self._Handle_SldVolume_ChangeValue)
+        self.fSigSetEnabledPlayPauseButton.connect      (self._SetEnabled_PlayPauseButton)
+        self.fSigSetEnabledPlaylist.connect             (self._SetEnabled_Playlist)
+        self.fBtnPlay.clicked.connect                   (self._Handle_BtnPlay_Click)
+        self.fLstSongs.itemClicked.connect              (self._Handle_LstPlaylist_Select)
+        self.fSldVolume.sliderMoved.connect             (self._Handle_SldVolume_ChangeValue)
 
         self._retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

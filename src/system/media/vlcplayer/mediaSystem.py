@@ -27,10 +27,14 @@ class TVLCPlayer:
         self.fDelegate = delegate
 
     def LoadTrack (self, url):
-        TDelay (self.fDelegate, TVLCEvent.kTrackLoaded).start ()
+        threading.Thread (target=self._delay, args=(self.fDelegate, TVLCEvent.kTrackLoaded)).start()
     
     def MediaSystemDispose (self):
-        TDelay (self.fDelegate, TVLCEvent.kAppExit).start ()
+        threading.Thread (target=self._delay, args=(self.fDelegate, TVLCEvent.kAppExit)).start()
+
+    def _delay (self, notified, evToNotify):
+        time.sleep(2)
+        notified.Handle (evToNotify)
 
 class TVLCEvent:
 

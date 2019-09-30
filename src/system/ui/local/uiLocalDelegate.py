@@ -2,6 +2,62 @@
 Created on Aug 15, 2019
 
 @author: peter
+
+operating from ext. threads:
+
+import sys, time, threading
+from PyQt5 import QtCore, QtWidgets
+
+def thread_info(msg):
+    print(msg, int(QtCore.QThread.currentThreadId()),
+          threading.current_thread().name)
+
+class PyThreadObject(QtCore.QObject):
+    sig = QtCore.pyqtSignal()
+
+    def start(self):
+        self._thread = threading.Thread(target=self.run)
+        self._thread.start()
+
+    def run(self):
+        time.sleep(1)
+        thread_info('py:run')
+        self.sig.emit()
+
+class QtThreadObject(QtCore.QThread):
+    sig = QtCore.pyqtSignal()
+
+    def run(self):
+        time.sleep(1)
+        thread_info('qt:run')
+        self.sig.emit()
+
+class Window(QtWidgets.QWidget):
+    def __init__(self):
+        super(Window, self).__init__()
+        self.pyobj = PyThreadObject()
+        self.pyobj.sig.connect(self.pyslot)
+        self.pyobj.start()
+        self.qtobj = QtThreadObject()
+        self.qtobj.sig.connect(self.qtslot)
+        self.qtobj.start()
+
+    def pyslot(self):
+        thread_info('py:slot')
+
+    def qtslot(self):
+        thread_info('qt:slot')
+
+if __name__ == '__main__':
+
+    app = QtWidgets.QApplication(sys.argv)
+    window = Window()
+    window.setGeometry(600, 100, 300, 200)
+    window.show()
+    thread_info('main')
+    sys.exit(app.exec_())
+
+
 '''
 from system.ui.uiDelegate import VUiDelegate
 from system.ui.local.qt.gui import Ui_MainWindow, TUiLocalEvent
@@ -11,12 +67,15 @@ class TUiLocalDelegate (VUiDelegate):
     Delegate for the local UI. 
     '''
 
+    _gInstance = None
+
     def __init__(self):
         '''
         Constructor
         '''
-        self.fUI        = Ui_MainWindow (self)
-        self.fFrontend  = None
+        self.fUI             = Ui_MainWindow (self)
+        self.fFrontend       = None
+        _gInstance           = self 
         
     def SetPlaylist (self, items):
         '''
