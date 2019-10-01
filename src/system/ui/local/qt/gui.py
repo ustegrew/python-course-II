@@ -33,12 +33,15 @@ except AttributeError:
 
 class Ui_MainWindow (QObject):
     '''
-    Local UI. Uses a delegate to integrate with the application logic. 
+    Local UI. Uses a delegate to integrate with the application logic.
+    Signals start as class variables, but at runtime will be hoisted 
+    inside the instance as regular object properties. 
     '''
-    fSigSetPlaylist                = pyqtSignal (list)
+    fSigSetCurrentTime             = pyqtSignal (int, int, int)
     fSigSetCurrentTrackInfo        = pyqtSignal (str, str)
     fSigSetEnabledPlaylist         = pyqtSignal (bool)
     fSigSetEnabledPlayPauseButton  = pyqtSignal (bool)
+    fSigSetPlaylist                = pyqtSignal (list)
     _gInstance                      = None
     
     def __init__ (self, delegate):
@@ -64,7 +67,8 @@ class Ui_MainWindow (QObject):
 
     def SetEnabled_Playlist (self, flag):
         '''
-        Enables / disables the playlist
+        Enables / disables the playlist. 
+        Note, for thread safety reasons we use the Qt inbuilt signal/slot mechanism.
         
         @param flag: (bool)    If TRUE, enable playlist. If FALSE, disable playlist.
         '''
@@ -73,6 +77,7 @@ class Ui_MainWindow (QObject):
     def SetEnabled_PlayPauseButton (self, flag):
         '''
         Enables / disables the play/pause button
+        Note, for thread safety reasons we use the Qt inbuilt signal/slot mechanism.
         
         @param flag: (bool)    If TRUE, enable button. If FALSE, disable button.
         '''
@@ -82,55 +87,33 @@ class Ui_MainWindow (QObject):
         '''
         Fills the LH (playlist) list widget with track names, so the user can 
         select the next track to play. 
+        Note, for thread safety reasons we use the Qt inbuilt signal/slot mechanism.
         
         @param items: (string []) A list of info strings denoting the tracks.
                                   Each item best in format "Artist - Title".
         '''
-        self.fLstSongs.clear ()
-        for x in items:
-            self.fLstSongs.addItem (x)
-    
+        self.fSigSetPlaylist.emit (items)
+        
     def SetCurrentTrackInfo (self, artist, title):
         '''
         Sets the info which track is currently loaded/playing.
+        Note, for thread safety reasons we use the Qt inbuilt signal/slot mechanism.
         
         @param artist: (string)    Artist who made the current track.
         @param title : (string)    Title of the current track.
         '''
-        a = "Unknown Artist"
-        t = "Unknown Track"
-        if artist is not None:
-            a = "%s" % artist
-        if title is not None:
-            t = "%s" % title
-        self.fLblSongTitle.setText ("%s - %s" % (a, t))
+        self.fSigSetCurrentTrackInfo.emit (artist, title)
     
     def SetCurrentTime (self, hr, mn, sec):
         '''
         Sets the time denoting the current playback position.
+        Note, for thread safety reasons we use the Qt inbuilt signal/slot mechanism.
         
         @param hr : (int)    Current time, hrs
         @param mn : (int)    Current time, minutes
         @param sec: (int)    Current time, seconds
         '''
-        # Here I was trying to be clever, but it results in code
-        # which isn't immediately obvious. Good programmers write
-        # dumb code, so see dumb code below. This code is too clever
-        # to be useful, because it isn't immediately obvious what it does.
-        # h = ""
-        # m = ""
-        # if hr >= 1:
-        #     h = "%02d" % hr
-        #     m = ":"
-        # m = "%s%02d" % (m, mn)     # m may be preset to ":"
-        # s = ":%02d" % (sec)
-        
-        # Here's the dumb code. I find it easier to understand... maybe I'm dumb, too?
-        if hr <= 0:
-            t = "%02d:%02d" % (mn, sec)
-        else:
-            t = "%02d:%02d:%02d" % (hr, mn, sec)
-        self.fLblTime.setText (t)
+        self.fSigSetCurrentTime.emit (hr, mn, sec)
     
     def _Handle_AppExit (self):
         '''
@@ -177,7 +160,58 @@ class Ui_MainWindow (QObject):
         Event handler: UI begins initialization.
         '''
         self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvUIInitStarted, None))
+
     
+    # Slots to set properties in this UI. We have to use the Qt 
+    # Signal/Slot mechanism to set properties from outside the Qt
+    # main thread. Signals are threadsafe and can be used across 
+    # threads. Without signals we will get weird warnings and errors 
+    # on stderr.
+    
+    @QtCore.pyqtSlot (int, int, int)
+    def _SetCurrentTime (self, hr, mn, sec):
+        '''
+        Sets the time denoting the current playback position.
+        
+        @param hr : (int)    Current time, hrs
+        @param mn : (int)    Current time, minutes
+        @param sec: (int)    Current time, seconds
+        '''
+        # Here I was trying to be clever, but it results in code
+        # which isn't immediately obvious. Good programmers write
+        # dumb code, so see dumb code below. This code is too clever
+        # to be useful, because it isn't immediately obvious what it does.
+        # h = ""
+        # m = ""
+        # if hr >= 1:
+        #     h = "%02d" % hr
+        #     m = ":"
+        # m = "%s%02d" % (m, mn)     # m may be preset to ":"
+        # s = ":%02d" % (sec)
+        
+        # Here's the dumb code. I find it easier to understand... maybe I'm dumb, too?
+        if hr <= 0:
+            t = "%02d:%02d" % (mn, sec)
+        else:
+            t = "%02d:%02d:%02d" % (hr, mn, sec)
+        self.fLblTime.setText (t)
+    
+    @QtCore.pyqtSlot (str, str)
+    def _SetCurrentTrackInfo (self, artist, title):
+        '''
+        Sets the info which track is currently loaded/playing.
+        
+        @param artist: (string)    Artist who made the current track.
+        @param title : (string)    Title of the current track.
+        '''
+        a = "Unknown Artist"
+        t = "Unknown Track"
+        if artist is not None:
+            a = "%s" % artist
+        if title is not None:
+            t = "%s" % title
+        self.fLblSongTitle.setText ("%s - %s" % (a, t))
+
     @QtCore.pyqtSlot (bool)
     def _SetEnabled_Playlist (self, flag):
         '''
@@ -185,7 +219,7 @@ class Ui_MainWindow (QObject):
         
         @param flag: (bool)    If TRUE, enable playlist. If FALSE, disable playlist.
         '''
-        Ui_MainWindow._gInstance.fLstSongs.setEnabled (flag)
+        self.fLstSongs.setEnabled (flag)
     
     @QtCore.pyqtSlot (bool)
     def _SetEnabled_PlayPauseButton (self, flag):
@@ -194,7 +228,20 @@ class Ui_MainWindow (QObject):
         
         @param flag: (bool)    If TRUE, enable button. If FALSE, disable button.
         '''
-        Ui_MainWindow._gInstance.fBtnPlay.setEnabled (flag)
+        self.fBtnPlay.setEnabled (flag)
+    
+    @QtCore.pyqtSlot (list)
+    def _SetPlaylist (self, items):
+        '''
+        Fills the LH (playlist) list widget with track names, so the user can 
+        select the next track to play. 
+        
+        @param items: (string []) A list of info strings denoting the tracks.
+                                  Each item best in format "Artist - Title".
+        '''
+        self.fLstSongs.clear ()
+        for x in items:
+            self.fLstSongs.addItem (x)
 
     def _setupUi(self, MainWindow):
         '''
@@ -346,8 +393,11 @@ class Ui_MainWindow (QObject):
         MainWindow.setStatusBar(self.statusbar)
 
         # Connect event handlers
+        self.fSigSetCurrentTime.connect                 (self._SetCurrentTime)
+        self.fSigSetCurrentTrackInfo.connect            (self._SetCurrentTrackInfo)
         self.fSigSetEnabledPlayPauseButton.connect      (self._SetEnabled_PlayPauseButton)
         self.fSigSetEnabledPlaylist.connect             (self._SetEnabled_Playlist)
+        self.fSigSetPlaylist.connect                    (self._SetPlaylist)
         self.fBtnPlay.clicked.connect                   (self._Handle_BtnPlay_Click)
         self.fLstSongs.itemClicked.connect              (self._Handle_LstPlaylist_Select)
         self.fSldVolume.sliderMoved.connect             (self._Handle_SldVolume_ChangeValue)
