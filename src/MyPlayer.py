@@ -3,20 +3,23 @@ Created on Sep 11, 2019
 
 @author: peter
 '''
-from app.controller.bController import TController
-from app.frontend.bFrontend import TFrontend
-from system.ui.local.uiLocalDelegate import TUiLocalDelegate
-from system.media.vlcplayer.mediaSystemDelegate import TMediaSystemDelegate
+from app.controller.appController                   import TController
+from app.frontend.appFrontend                       import TFrontend
+from system.ui.local.uiLocalDelegate                import TUiLocalDelegate
+from system.media.vlcplayer.mediaSystemDelegate     import TMediaSystemDelegate
+from app.backend.appBackend import TBackend
 
 def main ():
     gController     = TController           ()
-    gMediaSystem    = TMediaSystemDelegate  ()
+    gBackend        = TBackend              ()
     gFrontend       = TFrontend             ()
+    gMediaSystem    = TMediaSystemDelegate  ()
     gUi             = TUiLocalDelegate      ()
 
-    gController.SetOthers   (gMediaSystem, gFrontend)
-    gMediaSystem.SetOthers  (gController)    
+    gController.SetOthers   (gBackend, gFrontend)
+    gBackend.SetOthers      (gController, gMediaSystem)
     gFrontend.SetOthers     (gController, gUi)
+    gMediaSystem.SetOthers  (gBackend)    
     gUi.SetOthers           (gFrontend)
     
     gController.Handle      (gController.kEventInitStarted)

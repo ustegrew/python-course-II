@@ -67,15 +67,12 @@ class TUiLocalDelegate (VUiDelegate):
     Delegate for the local UI. 
     '''
 
-    _gInstance = None
-
     def __init__(self):
         '''
         Constructor
         '''
         self.fUI             = Ui_MainWindow (self)
         self.fFrontend       = None
-        _gInstance           = self 
         
     def SetPlaylist (self, items):
         '''
@@ -125,8 +122,8 @@ class TUiLocalDelegate (VUiDelegate):
         '''
         self.fUI.SetEnabled_PlayPauseButton (flag)
     
-    def SetOthers (self, facade):
-        self.fFrontend = facade
+    def SetOthers (self, frontend):
+        self.fFrontend = frontend
     
     def Start (self):
         '''

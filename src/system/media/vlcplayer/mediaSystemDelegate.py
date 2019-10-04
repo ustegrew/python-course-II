@@ -4,31 +4,37 @@ Created on Aug 15, 2019
 @author: peter
 '''
 from system.delegateBase import VDelegateBase
-from system.media.vlcplayer.mediaSystem import TVLCPlayer, TVLCEvent
+from system.media.vlcplayer.mediaSystem import TMediaPlayer
 
 class TMediaSystemDelegate (VDelegateBase):
     '''
     classdocs
     '''
-
+    
     def __init__(self):
         '''
         Constructor
         '''
-        self.fPlayer        = TVLCPlayer (self)
-        self.fController    = None
+        self.fPlayer        = TMediaPlayer (self)
+        self.fBackend       = None
+
+    def Handle_PlayerDisposed (self):
+        self.fBackend.Handle (self.fBackend.kEventPlayerDisposed)
     
-    def Handle (self, event):
-        if event == TVLCEvent.kTrackLoaded:
-            self.fController.Handle (self.fController.kEventMediaPlayerPreloaded)
-        elif event == TVLCEvent.kAppExit:
-            self.fController.Handle (self.fController.kEventExitFinished)
+    def Handle_PlayerReady (self):
+        self.fBackend.Handle (self.fBackend.kEventPlayerReady)
     
+    def Handle_TrackChangedPosition (self, posMs):
+        self.fBackend.Handle (self.fBackend.kEventChangedPosition, posMs)
+    
+    def Handle_TrackPreloaded (self):
+        self.fBackend.Handle (self.fBackend.kEventTrackPreloaded)
+        
     def Dispose (self):
-        self.fPlayer.MediaSystemDispose ()
+        self.fPlayer.Dispose ()
     
     def LoadTrack (self, url):
         self.fPlayer.LoadTrack (url)
     
-    def SetOthers (self, controller):
-        self.fController = controller
+    def SetOthers (self, backend):
+        self.fBackend = backend
