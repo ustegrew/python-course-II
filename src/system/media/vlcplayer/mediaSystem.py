@@ -54,7 +54,11 @@ class TMediaPlayer:
         self.fMediaInfoCurrentTime      = 0
         self._ConnectEvents ()
     
-    def Action_MediaPlay (self):
+    def Pause (self):
+        ret = self.fMediaAgent.pause ()
+        return ret
+    
+    def Play (self):
         ret = self.fMediaAgent.play ()
         return ret;
     
@@ -240,7 +244,7 @@ class TMediaPlayer:
  
     def _Event_MediaPlayerOpening (self, arg):
         curTitle = self.fMediaAgent.get_title ()
-        self.fDelegate.Handle_TrackPreloaded (curTitle)
+        self.fDelegate.Handle_TrackPreloaded ()
  
     def _Event_MediaPlayerPausableChanged (self, arg):
         pass

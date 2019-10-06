@@ -65,9 +65,9 @@ class TFrontend:
     def SetPlaylist (self, items):
         self.fUI.SetPlaylist (items)
     
-    def SetOthers (self, controller, uiDelegate):
+    def SetOthers (self, controller, ui):
         self.fController = controller
-        self.fUI         = uiDelegate
+        self.fUI         = ui
     
     def Teardown (self):
         self.fUI.Teardown ()

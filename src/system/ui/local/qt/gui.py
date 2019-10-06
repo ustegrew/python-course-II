@@ -12,7 +12,7 @@
 
 import sys
 from PyQt4 import QtCore, QtGui
-from PyQt4.Qt import QWidget, QObject, pyqtSignal
+from PyQt4.Qt import QObject, pyqtSignal
 
 # Disabled try... construct as I got a linker error on QtCore.QString. No clue
 # why, and it's not worth following up. We just define the _fromUtf8 function 
@@ -33,16 +33,23 @@ except AttributeError:
 
 class Ui_MainWindow (QObject):
     '''
-    Local UI. Uses a delegate to integrate with the application logic.
-    Signals start as class variables, but at runtime will be hoisted 
-    inside the instance as regular object properties. 
+    Local UI.
     '''
+        
+    # Various signals to provide better separation between the Qt main 
+    # thread and other threads running in this application. 
+    # We shouldn't directly set any UI properties from any other
+    # than the Qt main thread as this may lead to an exception.
+    # For example, we shouldn't have another thread call the play
+    # button's  setEnabled  method. Signals are Qt's safe way out. 
+    
+    # Signals start as class variables, but at runtime will be hoisted 
+    # inside the instance as regular object properties. 
     fSigSetCurrentTime             = pyqtSignal (int, int, int)
     fSigSetCurrentTrackInfo        = pyqtSignal (str, str)
     fSigSetEnabledPlaylist         = pyqtSignal (bool)
     fSigSetEnabledPlayPauseButton  = pyqtSignal (bool)
     fSigSetPlaylist                = pyqtSignal (list)
-    _gInstance                      = None
     
     def __init__ (self, delegate):
         '''
@@ -50,8 +57,7 @@ class Ui_MainWindow (QObject):
         Just a (dumb) frontend, i.e. does not implement any application logic.
         '''
         super (Ui_MainWindow, self).__init__ ()
-        self.fDelegate                      = delegate
-        Ui_MainWindow._gInstance            = self
+        self.fDelegate = delegate
     
     def RunMe (self):
         '''

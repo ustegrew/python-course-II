@@ -4,6 +4,8 @@ Created on Sep 21, 2019
 @author: peter
 '''
 import threading
+from posix import fstat
+from pkg_resources._vendor.six import get_method_self
 
 class TController:
     '''
@@ -187,7 +189,16 @@ class TController:
         self.fFrontend.Dispose ()   # TODO implement
     
     def _SetTrack (self, iTrack):
-        self.fBackend.LoadTrack ("")
+        self.fBackend.Load (iTrack)
+    
+    def _SetPlaying (self, doPlay):
+        if  doPlay:
+            self.fBackend.Play ()
+        else:
+            self.fBackend.Pause ()
+    
+    def _SetVolume (self, xVolume):
+        self.fBackend.SetVolume (xVolume)
     
     def _SetUI (self):
         if self.fState  == self.kStateNull:

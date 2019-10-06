@@ -18,23 +18,23 @@ class TMediaSystemDelegate (VDelegateBase):
         self.fPlayer        = TMediaPlayer (self)
         self.fBackend       = None
 
-    def Handle_PlayerDisposed (self):
-        self.fBackend.Handle (self.fBackend.kEventPlayerDisposed)
-    
-    def Handle_PlayerReady (self):
-        self.fBackend.Handle (self.fBackend.kEventPlayerReady)
-    
     def Handle_TrackChangedPosition (self, posMs):
         self.fBackend.Handle (self.fBackend.kEventChangedPosition, posMs)
     
     def Handle_TrackPreloaded (self):
-        self.fBackend.Handle (self.fBackend.kEventTrackPreloaded)
+        self.fBackend.Handle (self.fBackend.kEventTrackLoaded)
         
-    def Dispose (self):
-        self.fPlayer.Dispose ()
+    def Load (self, url):
+        self.fPlayer.Set_MediaTrack(url)
     
-    def LoadTrack (self, url):
-        self.fPlayer.LoadTrack (url)
+    def Play (self):
+        self.fPlayer.Play ()
+    
+    def Pause (self):
+        self.fPlayer.Pause ()
     
     def SetOthers (self, backend):
         self.fBackend = backend
+    
+    def SetVolume (self, xVolume):
+        self.fPlayer.Set_Volume (xVolume)

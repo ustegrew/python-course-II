@@ -22,7 +22,6 @@ def main ():
     gMediaSystem.SetOthers  (gBackend)    
     gUi.SetOthers           (gFrontend)
     
-    gController.Handle      (gController.kEventInitStarted)
     gFrontend.RunUI         ()
     
 if __name__ == '__main__':
