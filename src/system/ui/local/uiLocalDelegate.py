@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
 '''
 from system.ui.uiDelegate import VUiDelegate
-from system.ui.local.qt.gui import Ui_MainWindow, TUiLocalEvent
+from system.ui.local.qt.gui import Ui_MainWindow
 
 class TUiLocalDelegate (VUiDelegate):
     '''
@@ -74,28 +74,57 @@ class TUiLocalDelegate (VUiDelegate):
         self.fUI             = Ui_MainWindow (self)
         self.fFrontend       = None
         
-    def SetPlaylist (self, items):
+    def Handle_Controls_BtnPlayPause_Clicked (self):
         '''
-        Fills the UI's playlist with the given items. Any pre-existing entries 
-        will be replaced with the new ones.
-        
-        @param items:    (string[])     A list of track identifiers as required by the
-                                        associated UI. Usually you would provide
-                                        identifiers that contain artist and track title
+        Handles event: User clicked Play/Pause button
         '''
-        self.fUI.SetPlaylist (items)
+        self.fFrontend.Handle_RequestTogglePlayPause ()
     
-    def SetCurrentTrackInfo (self, artist, title):
+    def Handle_Controls_VolumeSlider_Moved (self, xVolume):
         '''
-        Sets the currently selected track title and author.
+        Handles event: User moved volume slider
+        '''
+        self.fFrontend.Handle_RequestChangedVolume (xVolume)
+    
+    def Handle_Tracklist_Item_Clicked (self, iItem):
+        '''
+        Handles event: User clicked item in track list
         
-        @param artist:    (string)      The name of the artist who made the 
-                                        currently selected track.
-        @param title:     (string)      The title of the currently selected track.
+        @param event: (int)    Index of the item clisked. Zero based
         '''
-        self.fUI.SetCurrentTrackInfo (artist, title)
+        self.fFrontend.Handle_RequestChoseTrack (iItem)
+    
+    def Handle_Ui_Init_Finished (self):
+        '''
+        Handles event: Ui has finished building and is ready to use
+        
+        @param event: (TUiLocalEvent)    The event
+        '''
+        self.fFrontend.Handle_EventUIInitFinished ()
+    
+    def Handle_Ui_Init_Started (self):
+        '''
+        Handles event: Ui has started building
+        
+        @param event: (TUiLocalEvent)    The event
+        '''
+        self.fFrontend.Handle_EventUIInitStarted ()
 
-    def SetCurrentTime (self, hr, mn, sec):
+    def Handle_Ui_Window_Closed (self):
+        '''
+        Handles event: User closed window (Clicked that little "x" top right
+        '''
+        self.fFrontend.Handle_RequestAppExit ()
+    
+    def Request_Controls_PlayPauseButton_Enabled_Set (self, flag):
+        '''
+        Enables / disables the play/pause button
+        
+        @param flag: (bool)    If TRUE, enable play/pause button. If FALSE, disable play/pause button.
+        '''
+        self.fUI.SetEnabled_PlayPauseButton (flag)
+    
+    def Request_Info_CurrentTime_Set (self, hr, mn, sec):
         '''
         Sets the current time info corresponding to the play position of the 
         currently selected track.
@@ -106,53 +135,51 @@ class TUiLocalDelegate (VUiDelegate):
         '''
         self.fUI.SetCurrentTime (hr, mn, sec)
 
-    def SetEnabled_Playlist (self, flag):
+    def Request_Info_CurrentTrack_Set (self, artist, title):
         '''
-        Enables / disables the playlist.
+        Sets the currently selected track title and author.
         
-        @param flag: (bool)    If TRUE, enable playlist. If FALSE, disable playlist.
+        @param artist:    (string)      The name of the artist who made the 
+                                        currently selected track.
+        @param title:     (string)      The title of the currently selected track.
+        '''
+        self.fUI.SetCurrentTrackInfo (artist, title)
+
+    def Request_Tracklist_Enabled_Set (self, flag):
+        '''
+        Enables / disables the track list.
+        
+        @param flag: (bool)    If TRUE, enable track list. If FALSE, disable track list.
         '''
         self.fUI.SetEnabled_Playlist (flag)
 
-    def SetEnabled_PlayPauseButton (self, flag):
+    def Request_Tracklist_Entries_Load (self, items):
         '''
-        Enables / disables the play/pause button
+        Fills the UI's playlist with the given items. Any pre-existing entries 
+        will be replaced with the new ones.
         
-        @param flag: (bool)    If TRUE, enable play button. If FALSE, disable play button.
+        @param items:    (string[])     A list of track identifiers as required by the
+                                        associated UI. Usually you would provide
+                                        identifiers that contain artist and track title
         '''
-        self.fUI.SetEnabled_PlayPauseButton (flag)
+        self.fUI.SetPlaylist (items)
     
-    def SetOthers (self, frontend):
-        self.fFrontend = frontend
-    
-    def Start (self):
+    def Request_Ui_Start (self):
         '''
         Starts the UI
         '''
         self.fUI.RunMe ()
     
-    def Teardown (self):
+    def Request_Ui_Teardown (self):
         '''
         Disposes the UI when the application finishes. 
         '''
         pass
 
-    def Handle (self, event):
+    def SetOthers (self, frontend):
         '''
-        Handles an event from the associated local UI.
-        
-        @param event: (TUiLocalEvent)    The event
+        Registers connected frontend.
         '''
-        if event.fEv == TUiLocalEvent.kEvUIInitStarted:
-            self.fFrontend.Handle_EventUIInitStarted ()
-        elif event.fEv == TUiLocalEvent.kEvUIInitFinished:
-            self.fFrontend.Handle_EventUIInitFinished ()
-        elif event.fEv == TUiLocalEvent.kEvBtnPlayClicked:
-            self.fFrontend.Handle_RequestTogglePlayPause ()
-        elif event.fEv == TUiLocalEvent.kEvTrackSelected:
-            self.fFrontend.Handle_RequestChoseTrack (event.fArg)
-        elif event.fEv == TUiLocalEvent.kEvVolumeChanged:
-            self.fFrontend.Handle_RequestChangedVolume (event.fArg)
-        elif event.fEv == TUiLocalEvent.kEvAppExit:
-            self.fFrontend.Handle_RequestAppExit ()
+        self.fFrontend = frontend
+    
     

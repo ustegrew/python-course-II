@@ -129,13 +129,13 @@ class Ui_MainWindow (QObject):
         else:
             event.ignore ()
         '''
-        self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvAppExit, None))
+        self.fDelegate.Handle_Ui_Window_Closed ()
         
     def _Handle_BtnPlay_Click (self):
         '''
         Event handler: User clicked "Play"/"Pause" button.
         '''
-        self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvBtnPlayClicked, None))
+        self.fDelegate.Handle_Controls_BtnPlayPause_Clicked ()
     
     def _Handle_LstPlaylist_Select (self, item):
         '''
@@ -146,26 +146,26 @@ class Ui_MainWindow (QObject):
         xSel = self.fLstSongs.selectedIndexes ()
         if (len(xSel) >= 1):
             iItem = xSel[0].row ()
-            self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvTrackSelected, iItem))
+            self.fDelegate.Handle_Tracklist_Item_Clicked (iItem)
     
     def _Handle_SldVolume_ChangeValue (self):
         '''
         Event handler: Volume slider moved.
         '''
         vol = self.fSldVolume.value ()
-        self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvVolumeChanged, vol))
+        self.fDelegate.Handle_Controls_VolumeSlider_Moved (vol)
     
     def _Handle_UIInitFinished (self):
         '''
         Event handler: UI initialized and ready.
         '''
-        self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvUIInitFinished, None))
+        self.fDelegate.Handle_Ui_Init_Finished ()
     
     def _Handle_UIInitStarted (self):
         '''
         Event handler: UI begins initialization.
         '''
-        self.fDelegate.Handle (TUiLocalEvent (TUiLocalEvent.kEvUIInitStarted, None))
+        self.fDelegate.Handle_Ui_Init_Started ()
 
     
     # Slots to set properties in this UI. We have to use the Qt 
