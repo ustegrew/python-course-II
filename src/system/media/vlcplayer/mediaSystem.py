@@ -40,8 +40,9 @@ class TMediaPlayer:
         } libvlc_meta_t;
     '''
 
-    kIDTitle    = vlc.Meta.Title
-    kIDArtist   = vlc.Meta.Artist
+    kDebugDoLogAllEvents    = True
+    kIDTitle                = vlc.Meta.Title
+    kIDArtist               = vlc.Meta.Artist
 
     def __init__(self, delegate):
         '''
@@ -139,404 +140,209 @@ class TMediaPlayer:
         eventAgent.event_attach (vlc.EventType.VlmMediaInstanceStatusPlaying,   self._Event_VlmMediaInstanceStatusPlaying)
         eventAgent.event_attach (vlc.EventType.VlmMediaInstanceStopped,         self._Event_VlmMediaInstanceStopped)
         eventAgent.event_attach (vlc.EventType.VlmMediaRemoved,                 self._Event_VlmMediaRemoved)
+
+    # Active events, i.e. these do something.
     
-    def _Event_MediaDiscovererEnded (self, arg):
-        pass
- 
-    def _Event_MediaDiscovererStarted (self, arg):
-        pass
- 
-    def _Event_MediaDurationChanged (self, arg):
-        pass
- 
-    def _Event_MediaFreed (self, arg):
-        pass
- 
-    def _Event_MediaListEndReached (self, arg):
-        pass
- 
-    def _Event_MediaListItemAdded (self, arg):
-        pass
- 
-    def _Event_MediaListItemDeleted (self, arg):
-        pass
- 
-    def _Event_MediaListPlayerNextItemSet (self, arg):
-        pass
- 
-    def _Event_MediaListPlayerPlayed (self, arg):
-        pass
- 
-    def _Event_MediaListPlayerStopped (self, arg):
-        pass
- 
-    def _Event_MediaListViewItemAdded (self, arg):
-        pass
- 
-    def _Event_MediaListViewItemDeleted (self, arg):
-        pass
- 
-    def _Event_MediaListViewWillAddItem (self, arg):
-        pass
- 
-    def _Event_MediaListViewWillDeleteItem (self, arg):
-        pass
- 
-    def _Event_MediaListWillAddItem (self, arg):
-        pass
- 
-    def _Event_MediaListWillDeleteItem (self, arg):
-        pass
- 
-    def _Event_MediaMetaChanged (self, arg):
-        pass
- 
-    def _Event_MediaParsedChanged (self, arg):
-        pass
- 
-    def _Event_MediaPlayerAudioDevice (self, arg):
-        pass
- 
-    def _Event_MediaPlayerAudioVolume (self, arg):
-        pass
- 
-    def _Event_MediaPlayerBackward (self, arg):
-        pass
- 
-    def _Event_MediaPlayerBuffering (self, arg):
-        pass
- 
-    def _Event_MediaPlayerChapterChanged (self, arg):
-        pass
- 
-    def _Event_MediaPlayerCorked (self, arg):
-        pass
- 
-    def _Event_MediaPlayerESAdded (self, arg):
-        pass
- 
-    def _Event_MediaPlayerESDeleted (self, arg):
-        pass
- 
-    def _Event_MediaPlayerESSelected (self, arg):
-        pass
- 
-    def _Event_MediaPlayerEncounteredError (self, arg):
-        pass
- 
     def _Event_MediaPlayerEndReached (self, arg):
-        pass
- 
-    def _Event_MediaPlayerForward (self, arg):
-        pass
- 
-    def _Event_MediaPlayerLengthChanged (self, arg):
-        pass
- 
-    def _Event_MediaPlayerMediaChanged (self, arg):
-        pass
- 
-    def _Event_MediaPlayerMuted (self, arg):
-        pass
- 
-    def _Event_MediaPlayerNothingSpecial (self, arg):
-        pass
- 
+        self.fDelegate.Handle_Track_Playout_Finished ()
+        self.__DbgLogEvent ("MediaPlayerEndReached (%s)" % arg)
+  
     def _Event_MediaPlayerOpening (self, arg):
         curTitle = self.fMediaAgent.get_title ()
-        self.fDelegate.Handle_TrackPreloaded ()
- 
-    def _Event_MediaPlayerPausableChanged (self, arg):
-        pass
- 
-    def _Event_MediaPlayerPaused (self, arg):
-        pass
- 
-    def _Event_MediaPlayerPlaying (self, arg):
-        pass
- 
+        self.fDelegate.Handle_Track_Preload_Finished ()
+        self.__DbgLogEvent ("MediaPlayerOpening (%s)" % arg)
+  
     def _Event_MediaPlayerPositionChanged (self, arg):
         posMs = self.fMediaAgent.get_time ()
-        self.fDelegate.Handle_TrackChangedPosition (posMs)
- 
+        self.fDelegate.Handle_Playback_Position_Changed (posMs)
+        self.__DbgLogEvent ("MediaPlayerPositionChanged (%s)" % arg)
+  
+    # Inactive events, i.e. these just log (debug), 
+    #     when logging is enabled (TMediaPlayer.kDebugDoLogAllEvents is True) 
+  
+    def _Event_MediaDiscovererEnded (self, arg):
+        self.__DbgLogEvent ("MediaDiscovererEnded (%s)" % arg)
+      
+    def _Event_MediaDiscovererStarted (self, arg):
+        self.__DbgLogEvent ("MediaDiscovererStarted (%s)" % arg)
+  
+    def _Event_MediaDurationChanged (self, arg):
+        self.__DbgLogEvent ("MediaDurationChanged (%s)" % arg)
+  
+    def _Event_MediaFreed (self, arg):
+        self.__DbgLogEvent ("MediaFreed (%s)" % arg)
+  
+    def _Event_MediaListEndReached (self, arg):
+        self.__DbgLogEvent ("MediaListEndReached (%s)" % arg)
+  
+    def _Event_MediaListItemAdded (self, arg):
+        self.__DbgLogEvent ("MediaListItemAdded (%s)" % arg)
+  
+    def _Event_MediaListItemDeleted (self, arg):
+        self.__DbgLogEvent ("MediaListItemDeleted (%s)" % arg)
+  
+    def _Event_MediaListPlayerNextItemSet (self, arg):
+        self.__DbgLogEvent ("MediaListPlayerNextItemSet (%s)" % arg)
+  
+    def _Event_MediaListPlayerPlayed (self, arg):
+        self.__DbgLogEvent ("MediaListPlayerPlayed (%s)" % arg)
+  
+    def _Event_MediaListPlayerStopped (self, arg):
+        self.__DbgLogEvent ("MediaListPlayerStopped (%s)" % arg)
+  
+    def _Event_MediaListViewItemAdded (self, arg):
+        self.__DbgLogEvent ("MediaListViewItemAdded (%s)" % arg)
+  
+    def _Event_MediaListViewItemDeleted (self, arg):
+        self.__DbgLogEvent ("MediaListViewItemDeleted (%s)" % arg)
+  
+    def _Event_MediaListViewWillAddItem (self, arg):
+        self.__DbgLogEvent ("MediaListViewWillAddItem (%s)" % arg)
+  
+    def _Event_MediaListViewWillDeleteItem (self, arg):
+        self.__DbgLogEvent ("MediaListViewWillDeleteItem (%s)" % arg)
+  
+    def _Event_MediaListWillAddItem (self, arg):
+        self.__DbgLogEvent ("MediaListWillAddItem (%s)" % arg)
+  
+    def _Event_MediaListWillDeleteItem (self, arg):
+        self.__DbgLogEvent ("MediaListWillDeleteItem (%s)" % arg)
+  
+    def _Event_MediaMetaChanged (self, arg):
+        self.__DbgLogEvent ("MediaMetaChanged (%s)" % arg)
+  
+    def _Event_MediaParsedChanged (self, arg):
+        self.__DbgLogEvent ("MediaParsedChanged (%s)" % arg)
+  
+    def _Event_MediaPlayerAudioDevice (self, arg):
+        self.__DbgLogEvent ("MediaPlayerAudioDevice (%s)" % arg)
+  
+    def _Event_MediaPlayerAudioVolume (self, arg):
+        self.__DbgLogEvent ("MediaPlayerAudioVolume (%s)" % arg)
+  
+    def _Event_MediaPlayerBackward (self, arg):
+        self.__DbgLogEvent ("MediaPlayerBackward (%s)" % arg)
+  
+    def _Event_MediaPlayerBuffering (self, arg):
+        self.__DbgLogEvent ("MediaPlayerBuffering (%s)" % arg)
+  
+    def _Event_MediaPlayerChapterChanged (self, arg):
+        self.__DbgLogEvent ("MediaPlayerChapterChanged (%s)" % arg)
+  
+    def _Event_MediaPlayerCorked (self, arg):
+        self.__DbgLogEvent ("MediaPlayerCorked (%s)" % arg)
+  
+    def _Event_MediaPlayerESAdded (self, arg):
+        self.__DbgLogEvent ("MediaPlayerESAdded (%s)" % arg)
+  
+    def _Event_MediaPlayerESDeleted (self, arg):
+        self.__DbgLogEvent ("MediaPlayerESDeleted (%s)" % arg)
+  
+    def _Event_MediaPlayerESSelected (self, arg):
+        self.__DbgLogEvent ("MediaPlayerESSelected (%s)" % arg)
+  
+    def _Event_MediaPlayerEncounteredError (self, arg):
+        self.__DbgLogEvent ("MediaPlayerEncounteredError (%s)" % arg)
+  
+    def _Event_MediaPlayerForward (self, arg):
+        self.__DbgLogEvent ("MediaPlayerForward (%s)" % arg)
+  
+    def _Event_MediaPlayerLengthChanged (self, arg):
+        self.__DbgLogEvent ("MediaPlayerLengthChanged (%s)" % arg)
+  
+    def _Event_MediaPlayerMediaChanged (self, arg):
+        self.__DbgLogEvent ("MediaPlayerMediaChanged (%s)" % arg)
+  
+    def _Event_MediaPlayerMuted (self, arg):
+        self.__DbgLogEvent ("MediaPlayerMuted (%s)" % arg)
+  
+    def _Event_MediaPlayerNothingSpecial (self, arg):
+        self.__DbgLogEvent ("MediaPlayerNothingSpecial (%s)" % arg)
+  
+    def _Event_MediaPlayerPausableChanged (self, arg):
+        self.__DbgLogEvent ("MediaPlayerPausableChanged (%s)" % arg)
+  
+    def _Event_MediaPlayerPaused (self, arg):
+        self.__DbgLogEvent ("MediaPlayerPaused (%s)" % arg)
+  
+    def _Event_MediaPlayerPlaying (self, arg):
+        self.__DbgLogEvent ("MediaPlayerPlaying (%s)" % arg)
+  
     def _Event_MediaPlayerScrambledChanged (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("MediaPlayerScrambledChanged (%s)" % arg)
+  
     def _Event_MediaPlayerSeekableChanged (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("MediaPlayerSeekableChanged (%s)" % arg)
+  
     def _Event_MediaPlayerSnapshotTaken (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("MediaPlayerSnapshotTaken (%s)" % arg)
+  
     def _Event_MediaPlayerStopped (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("MediaPlayerStopped (%s)" % arg)
+  
     def _Event_MediaPlayerTimeChanged (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("MediaPlayerTimeChanged (%s)" % arg)
+  
     def _Event_MediaPlayerTitleChanged (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("MediaPlayerTitleChanged (%s)" % arg)
+  
     def _Event_MediaPlayerUncorked (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("MediaPlayerUncorked (%s)" % arg)
+  
     def _Event_MediaPlayerUnmuted (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("MediaPlayerUnmuted (%s)" % arg)
+  
     def _Event_MediaPlayerVout (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("MediaPlayerVout (%s)" % arg)
+  
     def _Event_MediaStateChanged (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("MediaStateChanged (%s)" % arg)
+  
     def _Event_MediaSubItemAdded (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("MediaSubItemAdded (%s)" % arg)
+  
     def _Event_MediaSubItemTreeAdded (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("MediaSubItemTreeAdded (%s)" % arg)
+  
     def _Event_RendererDiscovererItemAdded (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("RendererDiscovererItemAdded (%s)" % arg)
+  
     def _Event_RendererDiscovererItemDeleted (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("RendererDiscovererItemDeleted (%s)" % arg)
+  
     def _Event_VlmMediaAdded (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("VlmMediaAdded (%s)" % arg)
+  
     def _Event_VlmMediaChanged (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("VlmMediaChanged (%s)" % arg)
+  
     def _Event_VlmMediaInstanceStarted (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("VlmMediaInstanceStarted (%s)" % arg)
+  
     def _Event_VlmMediaInstanceStatusEnd (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("VlmMediaInstanceStatusEnd (%s)" % arg)
+  
     def _Event_VlmMediaInstanceStatusError (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("VlmMediaInstanceStatusError (%s)" % arg)
+  
     def _Event_VlmMediaInstanceStatusInit (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("VlmMediaInstanceStatusInit (%s)" % arg)
+  
     def _Event_VlmMediaInstanceStatusOpening (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("VlmMediaInstanceStatusOpening (%s)" % arg)
+  
     def _Event_VlmMediaInstanceStatusPause (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("VlmMediaInstanceStatusPause (%s)" % arg)
+  
     def _Event_VlmMediaInstanceStatusPlaying (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("VlmMediaInstanceStatusPlaying (%s)" % arg)
+  
     def _Event_VlmMediaInstanceStopped (self, arg):
-        pass
- 
+        self.__DbgLogEvent ("VlmMediaInstanceStopped (%s)" % arg)
+  
     def _Event_VlmMediaRemoved (self, arg):
-        pass
+        self.__DbgLogEvent ("VlmMediaRemoved (%s)" % arg)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 
-#     def _Event_MediaDiscovererEnded (self, arg):
-#         print ("Backend_Event: _Event_MediaDiscovererEnded (%s)" % arg)
-#      
-#     def _Event_MediaDiscovererStarted (self, arg):
-#         print ("Backend_Event: _Event_MediaDiscovererStarted (%s)" % arg)
-#  
-#     def _Event_MediaDurationChanged (self, arg):
-#         print ("Backend_Event: MediaDurationChanged (%s)" % arg)
-#  
-#     def _Event_MediaFreed (self, arg):
-#         print ("Backend_Event: MediaFreed (%s)" % arg)
-#  
-#     def _Event_MediaListEndReached (self, arg):
-#         print ("Backend_Event: MediaListEndReached (%s)" % arg)
-#  
-#     def _Event_MediaListItemAdded (self, arg):
-#         print ("Backend_Event: MediaListItemAdded (%s)" % arg)
-#  
-#     def _Event_MediaListItemDeleted (self, arg):
-#         print ("Backend_Event: MediaListItemDeleted (%s)" % arg)
-#  
-#     def _Event_MediaListPlayerNextItemSet (self, arg):
-#         print ("Backend_Event: MediaListPlayerNextItemSet (%s)" % arg)
-#  
-#     def _Event_MediaListPlayerPlayed (self, arg):
-#         print ("Backend_Event: MediaListPlayerPlayed (%s)" % arg)
-#  
-#     def _Event_MediaListPlayerStopped (self, arg):
-#         print ("Backend_Event: MediaListPlayerStopped (%s)" % arg)
-#  
-#     def _Event_MediaListViewItemAdded (self, arg):
-#         print ("Backend_Event: MediaListViewItemAdded (%s)" % arg)
-#  
-#     def _Event_MediaListViewItemDeleted (self, arg):
-#         print ("Backend_Event: MediaListViewItemDeleted (%s)" % arg)
-#  
-#     def _Event_MediaListViewWillAddItem (self, arg):
-#         print ("Backend_Event: MediaListViewWillAddItem (%s)" % arg)
-#  
-#     def _Event_MediaListViewWillDeleteItem (self, arg):
-#         print ("Backend_Event: MediaListViewWillDeleteItem (%s)" % arg)
-#  
-#     def _Event_MediaListWillAddItem (self, arg):
-#         print ("Backend_Event: MediaListWillAddItem (%s)" % arg)
-#  
-#     def _Event_MediaListWillDeleteItem (self, arg):
-#         print ("Backend_Event: MediaListWillDeleteItem (%s)" % arg)
-#  
-#     def _Event_MediaMetaChanged (self, arg):
-#         print ("Backend_Event: MediaMetaChanged (%s)" % arg)
-#  
-#     def _Event_MediaParsedChanged (self, arg):
-#         print ("Backend_Event: MediaParsedChanged (%s)" % arg)
-#  
-#     def _Event_MediaPlayerAudioDevice (self, arg):
-#         print ("Backend_Event: MediaPlayerAudioDevice (%s)" % arg)
-#  
-#     def _Event_MediaPlayerAudioVolume (self, arg):
-#         print ("Backend_Event: MediaPlayerAudioVolume (%s)" % arg)
-#  
-#     def _Event_MediaPlayerBackward (self, arg):
-#         print ("Backend_Event: MediaPlayerBackward (%s)" % arg)
-#  
-#     def _Event_MediaPlayerBuffering (self, arg):
-#         print ("Backend_Event: MediaPlayerBuffering (%s)" % arg)
-#  
-#     def _Event_MediaPlayerChapterChanged (self, arg):
-#         print ("Backend_Event: MediaPlayerChapterChanged (%s)" % arg)
-#  
-#     def _Event_MediaPlayerCorked (self, arg):
-#         print ("Backend_Event: MediaPlayerCorked (%s)" % arg)
-#  
-#     def _Event_MediaPlayerESAdded (self, arg):
-#         print ("Backend_Event: MediaPlayerESAdded (%s)" % arg)
-#  
-#     def _Event_MediaPlayerESDeleted (self, arg):
-#         print ("Backend_Event: MediaPlayerESDeleted (%s)" % arg)
-#  
-#     def _Event_MediaPlayerESSelected (self, arg):
-#         print ("Backend_Event: MediaPlayerESSelected (%s)" % arg)
-#  
-#     def _Event_MediaPlayerEncounteredError (self, arg):
-#         print ("Backend_Event: MediaPlayerEncounteredError (%s)" % arg)
-#  
-#     def _Event_MediaPlayerEndReached (self, arg):
-#         print ("Backend_Event: MediaPlayerEndReached (%s)" % arg)
-#  
-#     def _Event_MediaPlayerForward (self, arg):
-#         print ("Backend_Event: MediaPlayerForward (%s)" % arg)
-#  
-#     def _Event_MediaPlayerLengthChanged (self, arg):
-#         print ("Backend_Event: MediaPlayerLengthChanged (%s)" % arg)
-#  
-#     def _Event_MediaPlayerMediaChanged (self, arg):
-#         print ("Backend_Event: MediaPlayerMediaChanged (%s)" % arg)
-#  
-#     def _Event_MediaPlayerMuted (self, arg):
-#         print ("Backend_Event: MediaPlayerMuted (%s)" % arg)
-#  
-#     def _Event_MediaPlayerNothingSpecial (self, arg):
-#         print ("Backend_Event: MediaPlayerNothingSpecial (%s)" % arg)
-#  
-#     def _Event_MediaPlayerOpening (self, arg):
-#         print ("Backend_Event: MediaPlayerOpening (%s)" % arg)
-#  
-#     def _Event_MediaPlayerPausableChanged (self, arg):
-#         print ("Backend_Event: MediaPlayerPausableChanged (%s)" % arg)
-#  
-#     def _Event_MediaPlayerPaused (self, arg):
-#         print ("Backend_Event: MediaPlayerPaused (%s)" % arg)
-#  
-#     def _Event_MediaPlayerPlaying (self, arg):
-#         print ("Backend_Event: MediaPlayerPlaying (%s)" % arg)
-#  
-#     def _Event_MediaPlayerPositionChanged (self, arg):
-#         print ("Backend_Event: MediaPlayerPositionChanged (%s)" % arg)
-#  
-#     def _Event_MediaPlayerScrambledChanged (self, arg):
-#         print ("Backend_Event: MediaPlayerScrambledChanged (%s)" % arg)
-#  
-#     def _Event_MediaPlayerSeekableChanged (self, arg):
-#         print ("Backend_Event: MediaPlayerSeekableChanged (%s)" % arg)
-#  
-#     def _Event_MediaPlayerSnapshotTaken (self, arg):
-#         print ("Backend_Event: MediaPlayerSnapshotTaken (%s)" % arg)
-#  
-#     def _Event_MediaPlayerStopped (self, arg):
-#         print ("Backend_Event: MediaPlayerStopped (%s)" % arg)
-#  
-#     def _Event_MediaPlayerTimeChanged (self, arg):
-#         print ("Backend_Event: MediaPlayerTimeChanged (%s)" % arg)
-#  
-#     def _Event_MediaPlayerTitleChanged (self, arg):
-#         print ("Backend_Event: MediaPlayerTitleChanged (%s)" % arg)
-#  
-#     def _Event_MediaPlayerUncorked (self, arg):
-#         print ("Backend_Event: MediaPlayerUncorked (%s)" % arg)
-#  
-#     def _Event_MediaPlayerUnmuted (self, arg):
-#         print ("Backend_Event: MediaPlayerUnmuted (%s)" % arg)
-#  
-#     def _Event_MediaPlayerVout (self, arg):
-#         print ("Backend_Event: MediaPlayerVout (%s)" % arg)
-#  
-#     def _Event_MediaStateChanged (self, arg):
-#         print ("Backend_Event: MediaStateChanged (%s)" % arg)
-#  
-#     def _Event_MediaSubItemAdded (self, arg):
-#         print ("Backend_Event: MediaSubItemAdded (%s)" % arg)
-#  
-#     def _Event_MediaSubItemTreeAdded (self, arg):
-#         print ("Backend_Event: MediaSubItemTreeAdded (%s)" % arg)
-#  
-#     def _Event_RendererDiscovererItemAdded (self, arg):
-#         print ("Backend_Event: RendererDiscovererItemAdded (%s)" % arg)
-#  
-#     def _Event_RendererDiscovererItemDeleted (self, arg):
-#         print ("Backend_Event: RendererDiscovererItemDeleted (%s)" % arg)
-#  
-#     def _Event_VlmMediaAdded (self, arg):
-#         print ("Backend_Event: VlmMediaAdded (%s)" % arg)
-#  
-#     def _Event_VlmMediaChanged (self, arg):
-#         print ("Backend_Event: VlmMediaChanged (%s)" % arg)
-#  
-#     def _Event_VlmMediaInstanceStarted (self, arg):
-#         print ("Backend_Event: VlmMediaInstanceStarted (%s)" % arg)
-#  
-#     def _Event_VlmMediaInstanceStatusEnd (self, arg):
-#         print ("Backend_Event: VlmMediaInstanceStatusEnd (%s)" % arg)
-#  
-#     def _Event_VlmMediaInstanceStatusError (self, arg):
-#         print ("Backend_Event: VlmMediaInstanceStatusError (%s)" % arg)
-#  
-#     def _Event_VlmMediaInstanceStatusInit (self, arg):
-#         print ("Backend_Event: VlmMediaInstanceStatusInit (%s)" % arg)
-#  
-#     def _Event_VlmMediaInstanceStatusOpening (self, arg):
-#         print ("Backend_Event: VlmMediaInstanceStatusOpening (%s)" % arg)
-#  
-#     def _Event_VlmMediaInstanceStatusPause (self, arg):
-#         print ("Backend_Event: VlmMediaInstanceStatusPause (%s)" % arg)
-#  
-#     def _Event_VlmMediaInstanceStatusPlaying (self, arg):
-#         print ("Backend_Event: VlmMediaInstanceStatusPlaying (%s)" % arg)
-#  
-#     def _Event_VlmMediaInstanceStopped (self, arg):
-#         print ("Backend_Event: VlmMediaInstanceStopped (%s)" % arg)
-#  
-#     def _Event_VlmMediaRemoved (self, arg):
-#         print ("Backend_Event: VlmMediaRemoved (%s)" % arg)
-
+    def __DbgLogEvent (self, logStr):
+        if TMediaPlayer.kDebugDoLogAllEvents:
+            print ("Backend_Event: %s" % logStr)

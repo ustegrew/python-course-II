@@ -110,7 +110,7 @@ class TUiLocalDelegate (VUiDelegate):
         '''
         self.fFrontend.Handle_EventUIInitStarted ()
 
-    def Handle_Ui_Window_Closed (self):
+    def Handle_Ui_Closed (self):
         '''
         Handles event: User closed window (Clicked that little "x" top right
         '''

@@ -4,31 +4,29 @@ Created on Sep 21, 2019
 @author: peter
 '''
 import threading
-from posix import fstat
-from pkg_resources._vendor.six import get_method_self
 
 class TController:
     '''
     classdocs
     '''
-    kEventChoseSong                 = 1030
-    kEventExitFinished              = 1090
-    kEventExitStarted               = 1080
-    kEventInitFinished              = 1010
-    kEventInitStarted               = 1000
-    kEventMediaPlayerPreloaded      = 1020
-    kEventPlayToggled               = 1070
-    kEventPositionUpdate            = 1060
-    kEventSongFinished              = 1040
-    kEventVolumeUpdate              = 1050
+    kEventBackendMediaPlayerPositionUpdate      = 1060
+    kEventBackendMediaPlayerPreloaded           = 1020
+    kEventBackendMediaPlayerSongFinished        = 1040
+    kEventFrontendChoseSong                     = 1030
+    kEventFrontendExitFinished                  = 1090
+    kEventFrontendExitStarted                   = 1080
+    kEventFrontendInitFinished                  = 1010
+    kEventFrontendInitStarted                   = 1000
+    kEventFrontendPlayToggled                   = 1070
+    kEventFrontendVolumeUpdate                  = 1050
 
-    kStateInitializing              =  100
-    kStateNull                      =    0
-    kStatePaused                    =  120
-    kStatePlaying                   =  130
-    kStateTerminated                =  999
-    kStateTerminating               =  998
-    kStateWait                      =  110
+    kStateInitializing                          =  100
+    kStateNull                                  =    0
+    kStatePaused                                =  120
+    kStatePlaying                               =  130
+    kStateTerminated                            =  999
+    kStateTerminating                           =  998
+    kStateWait                                  =  110
     
     def __init__(self):
         '''
@@ -48,28 +46,28 @@ class TController:
         self.fLock.acquire ()
         if self.fState  == self.kStateNull:
 
-            if event == self.kEventInitStarted:
+            if event == self.kEventFrontendInitStarted:
                 self.fState = self.kStateInitializing
 
                 
         elif self.fState == self.kStateInitializing:
 
-            if event == self.kEventInitFinished:
+            if event == self.kEventFrontendInitFinished:
                 self.fState = self.kStateWait
                 self._SetTrack (0)
 
                 
         elif self.fState == self.kStateWait:
 
-            if event == self.kEventExitStarted:
+            if event == self.kEventFrontendExitStarted:
                 self.fState = self.kStateTerminating
-            elif event == self.kEventChoseSong:
+            elif event == self.kEventFrontendChoseSong:
                 self.fState = self.kStateWait
                 paramKey    = "iTrack"
                 self._SetTrack (paramValue)
-            elif event == self.kEventMediaPlayerPreloaded:
+            elif event == self.kEventBackendMediaPlayerPreloaded:
                 self.fState = self.kStatePaused
-            elif event == self.kEventVolumeUpdate:
+            elif event == self.kEventFrontendVolumeUpdate:
                 self.fState = self.kStateWait
                 doSetUI     = False
                 paramKey    = "xVolume"
@@ -77,15 +75,15 @@ class TController:
                 
         elif self.fState == self.kStatePaused:
 
-            if event == self.kEventChoseSong:
+            if event == self.kEventFrontendChoseSong:
                 self.fState = self.kStateWait
                 paramKey    = "iTrack"
                 self._SetTrack (paramValue)
-            elif event == self.kEventExitStarted:
+            elif event == self.kEventFrontendExitStarted:
                 self.fState = self.kStateTerminating
-            elif event == self.kEventPlayToggled:
+            elif event == self.kEventFrontendPlayToggled:
                 self.fState = self.kStatePlaying
-            elif event == self.kEventVolumeUpdate:
+            elif event == self.kEventFrontendVolumeUpdate:
                 self.fState = self.kStatePaused
                 doSetUI     = False
                 paramKey    = "xVolume"
@@ -93,27 +91,27 @@ class TController:
                 
         elif self.fState == self.kStatePlaying:
 
-            if event == self.kEventChoseSong:
+            if event == self.kEventFrontendChoseSong:
                 self.fState = self.kStateWait
                 paramKey    = "iTrack"
                 self._SetTrack (paramValue)
-            elif event == self.kEventExitStarted:
+            elif event == self.kEventFrontendExitStarted:
                 self.fState = self.kStateTerminating
-            elif event == self.kEventPlayToggled:
+            elif event == self.kEventFrontendPlayToggled:
                 self.fState = self.kStatePaused
-            elif event == self.kEventPositionUpdate:
+            elif event == self.kEventBackendMediaPlayerPositionUpdate:
                 doSetUI     = False
                 self.fState = self.kStatePlaying
-            elif event == self.kEventSongFinished:
+            elif event == self.kEventBackendMediaPlayerSongFinished:
                 self.fState = self.kStateWait
-            elif event == self.kEventVolumeUpdate:
+            elif event == self.kEventFrontendVolumeUpdate:
                 self.fState = self.kStatePlaying
                 doSetUI     = False
                 paramKey    = "xVolume"
 
                 
         elif self.fState == self.kStateTerminating:
-            if event == self.kEventExitFinished:
+            if event == self.kEventFrontendExitFinished:
                 self.fState = self.kStateTerminated
 
                 
@@ -144,26 +142,26 @@ class TController:
         
     def _GetEventName (self, event):
         ret = "? %s ?" % event
-        if event == self.kEventChoseSong:
-            ret = "kEventChoseSong"
-        elif event == self.kEventExitFinished:
-            ret = "kEventExitFinished"
-        elif event == self.kEventExitStarted:
-            ret = "kEventExitStarted"
-        elif event == self.kEventInitFinished:
-            ret = "kEventInitFinished"
-        elif event == self.kEventInitStarted:
-            ret = "kEventInitStarted"
-        elif event == self.kEventMediaPlayerPreloaded:
-            ret = "kEventMediaPlayerPreloaded"
-        elif event == self.kEventPlayToggled:
-            ret = "kEventPlayToggled"
-        elif event == self.kEventPositionUpdate:
-            ret = "kEventPositionUpdate"
-        elif event == self.kEventSongFinished:
-            ret = "kEventSongFinished"
-        elif event == self.kEventVolumeUpdate:
-            ret = "kEventVolumeUpdate"
+        if event == self.kEventFrontendChoseSong:
+            ret = "kEventFrontendChoseSong"
+        elif event == self.kEventFrontendExitFinished:
+            ret = "kEventFrontendExitFinished"
+        elif event == self.kEventFrontendExitStarted:
+            ret = "kEventFrontendExitStarted"
+        elif event == self.kEventFrontendInitFinished:
+            ret = "kEventFrontendInitFinished"
+        elif event == self.kEventFrontendInitStarted:
+            ret = "kEventFrontendInitStarted"
+        elif event == self.kEventBackendMediaPlayerPreloaded:
+            ret = "kEventBackendMediaPlayerPreloaded"
+        elif event == self.kEventFrontendPlayToggled:
+            ret = "kEventFrontendPlayToggled"
+        elif event == self.kEventBackendMediaPlayerPositionUpdate:
+            ret = "kEventBackendMediaPlayerPositionUpdate"
+        elif event == self.kEventBackendMediaPlayerSongFinished:
+            ret = "kEventBackendMediaPlayerSongFinished"
+        elif event == self.kEventFrontendVolumeUpdate:
+            ret = "kEventFrontendVolumeUpdate"
         return ret
     
     def _GetStateName (self, state):

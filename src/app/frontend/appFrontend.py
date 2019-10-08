@@ -19,23 +19,23 @@ class TFrontend:
         # TODO
         pass
     
-    def Handle_EventUIInitStarted (self):
-        self.fController.Handle (self.fController.kEventInitStarted)
+    def Handle_Ui_Init_Started (self):
+        self.fController.Handle (self.fController.kEventFrontendInitStarted)
     
-    def Handle_EventUIInitFinished (self):
-        self.fController.Handle (self.fController.kEventInitFinished)
+    def Handle_Ui_Init_Finished (self):
+        self.fController.Handle (self.fController.kEventFrontendInitFinished)
 
-    def Handle_RequestAppExit (self):
-        self.fController.Handle (self.fController.kEventExitStarted)
+    def Handle_Ui_Exit (self):
+        self.fController.Handle (self.fController.kEventFrontendExitStarted)
             
-    def Handle_RequestChoseTrack (self, iTrack):
-        self.fController.Handle (self.fController.kEventChoseSong, iTrack)
+    def Handle_Playout_Track_Choose (self, iTrack):
+        self.fController.Handle (self.fController.kEventFrontendChoseSong, iTrack)
     
-    def Handle_RequestChangedVolume (self, xVolume):
-        self.fController.Handle (self.fController.kEventVolumeUpdate, xVolume)
+    def Handle_Playout_Volume_Change (self, xVolume):
+        self.fController.Handle (self.fController.kEventFrontendVolumeUpdate, xVolume)
     
-    def Handle_RequestTogglePlayPause (self):
-        self.fController.Handle (self.fController.kEventPlayToggled)
+    def Handle_Playout_PlayPause_Toggle (self):
+        self.fController.Handle (self.fController.kEventFrontendPlayToggled)
     
     def RunUI (self):
         self.fUI.Start ()
