@@ -78,13 +78,13 @@ class TUiLocalDelegate (VUiDelegate):
         '''
         Handles event: User clicked Play/Pause button
         '''
-        self.fFrontend.Handle_RequestTogglePlayPause ()
+        self.fFrontend.Handle_Playout_PlayPause_Toggle ()
     
     def Handle_Controls_VolumeSlider_Moved (self, xVolume):
         '''
         Handles event: User moved volume slider
         '''
-        self.fFrontend.Handle_RequestChangedVolume (xVolume)
+        self.fFrontend.Handle_Playout_Volume_Change (xVolume)
     
     def Handle_Tracklist_Item_Clicked (self, iItem):
         '''
@@ -92,7 +92,7 @@ class TUiLocalDelegate (VUiDelegate):
         
         @param event: (int)    Index of the item clisked. Zero based
         '''
-        self.fFrontend.Handle_RequestChoseTrack (iItem)
+        self.fFrontend.Handle_Playout_Track_Choose (iItem)
     
     def Handle_Ui_Init_Finished (self):
         '''
@@ -100,7 +100,7 @@ class TUiLocalDelegate (VUiDelegate):
         
         @param event: (TUiLocalEvent)    The event
         '''
-        self.fFrontend.Handle_EventUIInitFinished ()
+        self.fFrontend.Handle_Ui_Init_Finished ()
     
     def Handle_Ui_Init_Started (self):
         '''
@@ -108,13 +108,13 @@ class TUiLocalDelegate (VUiDelegate):
         
         @param event: (TUiLocalEvent)    The event
         '''
-        self.fFrontend.Handle_EventUIInitStarted ()
+        self.fFrontend.Handle_Ui_Init_Started ()
 
     def Handle_Ui_Closed (self):
         '''
         Handles event: User closed window (Clicked that little "x" top right
         '''
-        self.fFrontend.Handle_RequestAppExit ()
+        self.fFrontend.Handle_Ui_Exit ()
     
     def Request_Controls_PlayPauseButton_Enabled_Set (self, flag):
         '''

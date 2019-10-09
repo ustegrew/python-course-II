@@ -40,10 +40,16 @@ class TController:
     def Handle (self, event, param = None):
         doSetUI     = True
         state0      = self.fState
+        event0      = 0
         paramKey    = None
         paramValue  = param
         
         self.fLock.acquire ()
+        ## Deadlock can occur when we release lock after handling code 
+        ## But releasing lock here obliterates thread synchronization??? Not sure 
+        event0 = event
+        self.fLock.release ()
+
         if self.fState  == self.kStateNull:
 
             if event == self.kEventFrontendInitStarted:
@@ -117,8 +123,7 @@ class TController:
                 
         elif self.fState == self.kStateTerminated:
             pass
-        
-        self.fLock.release ()
+       
         
         if doSetUI:
             self._SetUI ()
@@ -187,16 +192,16 @@ class TController:
         self.fFrontend.Dispose ()   # TODO implement
     
     def _SetTrack (self, iTrack):
-        self.fBackend.Load (iTrack)
+        self.fBackend.Request_Track_Load (iTrack)
     
     def _SetPlaying (self, doPlay):
         if  doPlay:
-            self.fBackend.Play ()
+            self.fBackend.Request_Playback_Play ()
         else:
-            self.fBackend.Pause ()
+            self.fBackend.Request_Playback_Pause ()
     
     def _SetVolume (self, xVolume):
-        self.fBackend.SetVolume (xVolume)
+        self.fBackend.Request_Media_SetVolume (xVolume)
     
     def _SetUI (self):
         if self.fState  == self.kStateNull:

@@ -38,7 +38,7 @@ class TFrontend:
         self.fController.Handle (self.fController.kEventFrontendPlayToggled)
     
     def RunUI (self):
-        self.fUI.Start ()
+        self.fUI.Request_Ui_Start ()
     
     def SetEnabled_Playlist (self, flag):
         '''
@@ -46,7 +46,7 @@ class TFrontend:
         
         @param flag: (bool)    If TRUE, enable playlist. If FALSE, disable playlist.
         '''
-        self.fUI.SetEnabled_Playlist (flag)
+        self.fUI.Request_Tracklist_Enabled_Set (flag)
     
     def SetEnabled_PlayPauseButton (self, flag):
         '''
@@ -54,16 +54,16 @@ class TFrontend:
         
         @param flag: (bool)    If TRUE, enable button. If FALSE, disable button.
         '''
-        self.fUI.SetEnabled_PlayPauseButton (flag)
+        self.fUI.Request_Controls_PlayPauseButton_Enabled_Set (flag)
     
     def SetCurrentTime (self, hr, mn, sec):
-        self.fUI.SetCurrentTime (hr, mn, sec)
+        self.fUI.Request_Info_CurrentTime_Set (hr, mn, sec)
     
     def SetCurrentTrackInfo (self, artist, title):
-        self.fUI.SetCurrentTrackInfo (artist, title)
+        self.fUI.Request_Info_CurrentTrack_Set (artist, title)
     
     def SetPlaylist (self, items):
-        self.fUI.SetPlaylist (items)
+        self.fUI.Request_Tracklist_Entries_Load (items)
     
     def SetOthers (self, controller, ui):
         self.fController = controller

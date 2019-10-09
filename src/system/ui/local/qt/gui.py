@@ -129,7 +129,7 @@ class Ui_MainWindow (QObject):
         else:
             event.ignore ()
         '''
-        self.fDelegate.Handle_Ui_Window_Closed ()
+        self.fDelegate.Handle_Ui_Closed ()
         
     def _Handle_BtnPlay_Click (self):
         '''
