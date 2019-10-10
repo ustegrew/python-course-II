@@ -70,6 +70,15 @@ class VUiDelegate (VDelegateBase):
         pass
     
     @abstractmethod            
+    def Request_Controls_PlayPauseButton_Text_Set (self, text):
+        '''
+        Sets the text on the Play/Pause button
+        
+        @param text: (string)  The text to be written on the button.
+        '''
+        pass
+    
+    @abstractmethod            
     def Request_Info_CurrentTime_Set (self, hr, mn, sec):
         '''
         Sets the current time info corresponding to the play position of the 

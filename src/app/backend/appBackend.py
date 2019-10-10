@@ -30,9 +30,11 @@ class TBackend:
 
     def Request_Playback_Pause (self):
         print ("TBackend::Pause ()")
+        self.fMediaSystem.Request_Playback_Pause ()
     
     def Request_Playback_Play (self):
         print ("TBackend::PlayCurrentTrack ()")
+        self.fMediaSystem.Request_Playback_Play ()
     
     def Request_Track_Load (self, iTrack):
         print ("TBackend::LoadTrack (%s)" % iTrack)

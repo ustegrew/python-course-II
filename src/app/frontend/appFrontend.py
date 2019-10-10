@@ -56,6 +56,20 @@ class TFrontend:
         '''
         self.fUI.Request_Controls_PlayPauseButton_Enabled_Set (flag)
     
+    def SetLook_PlayPauseButton (self, state):
+        '''
+        Sets the look of the play/pause button depending on whether we are in
+        playing, pausing or wait state
+        
+        @param state: (int) If 0, have button say "Play", if 1, have it say "Pause", otherwise, "..."
+        '''
+        if state == 0:
+            self.fUI.Request_Controls_PlayPauseButton_Text_Set ("Play")
+        elif state == 1:
+            self.fUI.Request_Controls_PlayPauseButton_Text_Set ("Pause")
+        else:
+            self.fUI.Request_Controls_PlayPauseButton_Text_Set ("Waiting...")
+    
     def SetCurrentTime (self, hr, mn, sec):
         self.fUI.Request_Info_CurrentTime_Set (hr, mn, sec)
     

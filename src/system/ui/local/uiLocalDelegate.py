@@ -71,7 +71,7 @@ class TUiLocalDelegate (VUiDelegate):
         '''
         Constructor
         '''
-        self.fUI             = Ui_MainWindow (self)
+        self.fUi             = Ui_MainWindow (self)
         self.fFrontend       = None
         
     def Handle_Controls_BtnPlayPause_Clicked (self):
@@ -122,7 +122,15 @@ class TUiLocalDelegate (VUiDelegate):
         
         @param flag: (bool)    If TRUE, enable play/pause button. If FALSE, disable play/pause button.
         '''
-        self.fUI.SetEnabled_PlayPauseButton (flag)
+        self.fUi.SetEnabled_PlayPauseButton (flag)
+    
+    def Request_Controls_PlayPauseButton_Text_Set (self, text):
+        '''
+        Sets the text on the Play/Pause button
+        
+        @param text: (string)  The text to be written on the button.
+        '''
+        self.fUi.SetTextPlayPauseButton (text)
     
     def Request_Info_CurrentTime_Set (self, hr, mn, sec):
         '''
@@ -133,7 +141,7 @@ class TUiLocalDelegate (VUiDelegate):
         @param min:       (int)         Current playback time, minute part.
         @param sec:       (int)         Current playback time, second part.
         '''
-        self.fUI.SetCurrentTime (hr, mn, sec)
+        self.fUi.SetCurrentTime (hr, mn, sec)
 
     def Request_Info_CurrentTrack_Set (self, artist, title):
         '''
@@ -143,7 +151,7 @@ class TUiLocalDelegate (VUiDelegate):
                                         currently selected track.
         @param title:     (string)      The title of the currently selected track.
         '''
-        self.fUI.SetCurrentTrackInfo (artist, title)
+        self.fUi.SetCurrentTrackInfo (artist, title)
 
     def Request_Tracklist_Enabled_Set (self, flag):
         '''
@@ -151,7 +159,7 @@ class TUiLocalDelegate (VUiDelegate):
         
         @param flag: (bool)    If TRUE, enable track list. If FALSE, disable track list.
         '''
-        self.fUI.SetEnabled_Playlist (flag)
+        self.fUi.SetEnabled_Playlist (flag)
 
     def Request_Tracklist_Entries_Load (self, items):
         '''
@@ -162,13 +170,13 @@ class TUiLocalDelegate (VUiDelegate):
                                         associated UI. Usually you would provide
                                         identifiers that contain artist and track title
         '''
-        self.fUI.SetPlaylist (items)
+        self.fUi.SetPlaylist (items)
     
     def Request_Ui_Start (self):
         '''
         Starts the UI
         '''
-        self.fUI.RunMe ()
+        self.fUi.RunMe ()
     
     def Request_Ui_Teardown (self):
         '''

@@ -64,7 +64,7 @@ class TMediaPlayer:
         return ret;
     
     def Set_MediaTrack (self, uri):
-        self.fMediaTrack = self.fMediaAgentFactory.media_new (uri)
+        self.fMediaTrack = self.fMediaAgentFactory.media_new ("/home/peter/Documents/dev/python/MyPlayer/assets/airtone_-_reCreation.mp3")
         self.fMediaAgent.set_media (self.fMediaTrack)
         self.fMediaInfoCurrentTime = 0
     

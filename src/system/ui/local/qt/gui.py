@@ -49,6 +49,7 @@ class Ui_MainWindow (QObject):
     fSigSetCurrentTrackInfo        = pyqtSignal (str, str)
     fSigSetEnabledPlaylist         = pyqtSignal (bool)
     fSigSetEnabledPlayPauseButton  = pyqtSignal (bool)
+    fSigSetTextPlayPauseButton     = pyqtSignal (str)
     fSigSetPlaylist                = pyqtSignal (list)
     
     def __init__ (self, delegate):
@@ -88,6 +89,14 @@ class Ui_MainWindow (QObject):
         @param flag: (bool)    If TRUE, enable button. If FALSE, disable button.
         '''
         self.fSigSetEnabledPlayPauseButton.emit (flag)
+    
+    def SetTextPlayPauseButton (self, text):
+        '''
+        Sets the text on the Play/Pause button
+        
+        @param text: (string)  The text to be written on the button.
+        '''
+        self.fSigSetTextPlayPauseButton.emit (text)
 
     def SetPlaylist (self, items):
         '''
@@ -236,6 +245,15 @@ class Ui_MainWindow (QObject):
         '''
         self.fBtnPlay.setEnabled (flag)
     
+    @QtCore.pyqtSlot (str)
+    def _SetTextPlayPauseButton (self, text):
+        '''
+        Sets the text on the Play/Pause button
+        
+        @param text: (string)  The text to be written on the button.
+        '''
+        self.fBtnPlay.setText (text)
+
     @QtCore.pyqtSlot (list)
     def _SetPlaylist (self, items):
         '''
@@ -404,6 +422,7 @@ class Ui_MainWindow (QObject):
         self.fSigSetEnabledPlayPauseButton.connect      (self._SetEnabled_PlayPauseButton)
         self.fSigSetEnabledPlaylist.connect             (self._SetEnabled_Playlist)
         self.fSigSetPlaylist.connect                    (self._SetPlaylist)
+        self.fSigSetTextPlayPauseButton.connect         (self._SetTextPlayPauseButton)
         self.fBtnPlay.clicked.connect                   (self._Handle_BtnPlay_Click)
         self.fLstSongs.itemClicked.connect              (self._Handle_LstPlaylist_Select)
         self.fSldVolume.sliderMoved.connect             (self._Handle_SldVolume_ChangeValue)

@@ -32,7 +32,7 @@ class TController:
         '''
         Constructor
         '''
-        self.fLock          = threading.Lock ()
+        self.fLock          = threading.RLock () # [100]
         self.fFrontend      = None
         self.fBackend       = None
         self.fState         = self.kStateNull
@@ -40,15 +40,10 @@ class TController:
     def Handle (self, event, param = None):
         doSetUI     = True
         state0      = self.fState
-        event0      = 0
         paramKey    = None
         paramValue  = param
         
         self.fLock.acquire ()
-        ## Deadlock can occur when we release lock after handling code 
-        ## But releasing lock here obliterates thread synchronization??? Not sure 
-        event0 = event
-        self.fLock.release ()
 
         if self.fState  == self.kStateNull:
 
@@ -89,6 +84,7 @@ class TController:
                 self.fState = self.kStateTerminating
             elif event == self.kEventFrontendPlayToggled:
                 self.fState = self.kStatePlaying
+                self._SetPlaying (True)
             elif event == self.kEventFrontendVolumeUpdate:
                 self.fState = self.kStatePaused
                 doSetUI     = False
@@ -105,6 +101,7 @@ class TController:
                 self.fState = self.kStateTerminating
             elif event == self.kEventFrontendPlayToggled:
                 self.fState = self.kStatePaused
+                self._SetPlaying (False)
             elif event == self.kEventBackendMediaPlayerPositionUpdate:
                 doSetUI     = False
                 self.fState = self.kStatePlaying
@@ -124,6 +121,7 @@ class TController:
         elif self.fState == self.kStateTerminated:
             pass
        
+        self.fLock.release ()
         
         if doSetUI:
             self._SetUI ()
@@ -211,14 +209,27 @@ class TController:
         elif self.fState == self.kStateWait:
             self.fFrontend.SetEnabled_Playlist          (False)
             self.fFrontend.SetEnabled_PlayPauseButton   (False)
+            self.fFrontend.SetLook_PlayPauseButton      (999)
         elif self.fState == self.kStatePaused:
             self.fFrontend.SetEnabled_Playlist          (True)
             self.fFrontend.SetEnabled_PlayPauseButton   (True)
+            self.fFrontend.SetLook_PlayPauseButton      (0)
         elif self.fState == self.kStatePlaying:
             self.fFrontend.SetEnabled_Playlist          (True)
             self.fFrontend.SetEnabled_PlayPauseButton   (True)
+            self.fFrontend.SetLook_PlayPauseButton      (1)
         elif self.fState == self.kStateTerminating:
             self.fFrontend.SetEnabled_Playlist          (False)
             self.fFrontend.SetEnabled_PlayPauseButton   (False)
+            self.fFrontend.SetLook_PlayPauseButton      (999)
         elif self.fState == self.kStateTerminated:
             pass
+
+
+# [100] We use a reentrant lock to avoid deadlocking in case one thread calls the 
+#       ::Handle() method multiple times in succession (i.e. acquiring the lock
+#       multiple times before releasing it). We may have to revisit this construct
+#       because it's possible that we still get deadlock, i.e. if we throw an exception 
+#       whilst executing the ::Handle() method or won't reach the lock's release()
+#       method for some other reason.
+ 
