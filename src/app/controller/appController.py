@@ -42,87 +42,125 @@ class TController:
         state0      = self.fState
         paramKey    = None
         paramValue  = param
-        
-        self.fLock.acquire ()
 
+        # Update UI ?  Some events require no more than minor UI changes. 
+        if event == self.kEventBackendMediaPlayerPositionUpdate:
+            doSetUI     = False
+        elif event == self.kEventFrontendVolumeUpdate:
+            doSetUI     = False
+
+        # We've got an event with parameter ? 
+        if event == self.kEventFrontendChoseSong:
+            paramKey    = "iTrack"
+        elif event == self.kEventFrontendVolumeUpdate:
+            paramKey    = "xVolume"
+        elif event == self.kEventBackendMediaPlayerPositionUpdate:
+            paramKey    = "posMs"
+
+
+        # Core of the state machine. Implements the application logic.
+
+        self.fLock.acquire ()
+        
+        # ---------------- State: Null            --------------------
         if self.fState  == self.kStateNull:
 
+            # ~~~~~ FrontendInitStarted
             if event == self.kEventFrontendInitStarted:
                 self.fState = self.kStateInitializing
 
                 
+        # ---------------- State: Initializing    --------------------
         elif self.fState == self.kStateInitializing:
 
+            # ~~~~~ FrontendInitFinished
             if event == self.kEventFrontendInitFinished:
                 self.fState = self.kStateWait
                 self._SetTrack (0)
+                self._SetVolume (50)
 
                 
+        # ---------------- State: Wait            --------------------
         elif self.fState == self.kStateWait:
 
+            # ~~~~~ FrontendExitStarted
             if event == self.kEventFrontendExitStarted:
                 self.fState = self.kStateTerminating
+            # ~~~~~ FrontendChoseSong
             elif event == self.kEventFrontendChoseSong:
                 self.fState = self.kStateWait
-                paramKey    = "iTrack"
                 self._SetTrack (paramValue)
+            # ~~~~~ BackendMediaPlayerPreloaded
             elif event == self.kEventBackendMediaPlayerPreloaded:
                 self.fState = self.kStatePaused
+            # ~~~~~ FrontendVolumeUpdate
             elif event == self.kEventFrontendVolumeUpdate:
                 self.fState = self.kStateWait
-                doSetUI     = False
-                paramKey    = "xVolume"
+                self._SetVolume (param)
 
                 
+        # ---------------- State: Pause           --------------------
         elif self.fState == self.kStatePaused:
 
+            # ~~~~~ FrontendChoseSong
             if event == self.kEventFrontendChoseSong:
                 self.fState = self.kStateWait
-                paramKey    = "iTrack"
                 self._SetTrack (paramValue)
+            # ~~~~~ FrontendExitStarted
             elif event == self.kEventFrontendExitStarted:
                 self.fState = self.kStateTerminating
+            # ~~~~~ FrontendPlayToggled
             elif event == self.kEventFrontendPlayToggled:
                 self.fState = self.kStatePlaying
                 self._SetPlaying (True)
+            # ~~~~~ FrontendVolumeUpdate
             elif event == self.kEventFrontendVolumeUpdate:
                 self.fState = self.kStatePaused
-                doSetUI     = False
-                paramKey    = "xVolume"
+                self._SetVolume (param)
 
                 
+        # ---------------- State: Playing         --------------------
         elif self.fState == self.kStatePlaying:
 
+            # ~~~~~ FrontendChoseSong
             if event == self.kEventFrontendChoseSong:
                 self.fState = self.kStateWait
-                paramKey    = "iTrack"
                 self._SetTrack (paramValue)
+            # ~~~~~ FrontendExitStarted
             elif event == self.kEventFrontendExitStarted:
                 self.fState = self.kStateTerminating
+            # ~~~~~ FrontendPlayToggled
             elif event == self.kEventFrontendPlayToggled:
                 self.fState = self.kStatePaused
                 self._SetPlaying (False)
+            # ~~~~~ BackendMediaPlayerPositionUpdate
             elif event == self.kEventBackendMediaPlayerPositionUpdate:
-                doSetUI     = False
                 self.fState = self.kStatePlaying
+                self._SetPosition (param)
+            # ~~~~~ BackendMediaPlayerSongFinished
             elif event == self.kEventBackendMediaPlayerSongFinished:
                 self.fState = self.kStateWait
+            # ~~~~~ FrontendVolumeUpdate
             elif event == self.kEventFrontendVolumeUpdate:
                 self.fState = self.kStatePlaying
-                doSetUI     = False
-                paramKey    = "xVolume"
+                self._SetVolume (param)
 
                 
+        # ---------------- State: Terminating     --------------------
         elif self.fState == self.kStateTerminating:
+            
+            # ~~~~~ FrontendExitFinished
             if event == self.kEventFrontendExitFinished:
                 self.fState = self.kStateTerminated
 
                 
+        # ---------------- State: Terminated      --------------------
         elif self.fState == self.kStateTerminated:
             pass
        
         self.fLock.release ()
         
+        # Set UI (only major changes) and dump state change to console.
         if doSetUI:
             self._SetUI ()
         if paramKey is None:
@@ -197,6 +235,14 @@ class TController:
             self.fBackend.Request_Playback_Play ()
         else:
             self.fBackend.Request_Playback_Pause ()
+    
+    def _SetPosition (self, posMs):
+        sc0      = posMs // 1000
+       
+        hr1      = sc0 // 3600
+        mn1      = (sc0 - (hr1 * 3600)) // 60
+        sc1      = sc0  -  hr1 * 3600  -  mn1 * 60
+        self.fFrontend.SetCurrentTime (hr1, mn1, sc1)
     
     def _SetVolume (self, xVolume):
         self.fBackend.Request_Media_SetVolume (xVolume)

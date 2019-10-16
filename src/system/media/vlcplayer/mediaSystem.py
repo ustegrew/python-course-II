@@ -40,7 +40,7 @@ class TMediaPlayer:
         } libvlc_meta_t;
     '''
 
-    kDebugDoLogAllEvents    = True
+    kDebugDoLogAllEvents    = False
     kIDTitle                = vlc.Meta.Title
     kIDArtist               = vlc.Meta.Artist
 
@@ -64,12 +64,17 @@ class TMediaPlayer:
         return ret;
     
     def Set_MediaTrack (self, uri):
-        self.fMediaTrack = self.fMediaAgentFactory.media_new ("/home/peter/Documents/dev/python/MyPlayer/assets/airtone_-_reCreation.mp3")
+        self.fMediaTrack = self.fMediaAgentFactory.media_new (uri)
         self.fMediaAgent.set_media (self.fMediaTrack)
         self.fMediaInfoCurrentTime = 0
     
     def Set_Volume (self, volume):
-        self.fMediaAgent.audio_set_volume (volume)
+        v = volume
+        if v < 0:
+            v = 0
+        elif v > 100:
+            v = 100 
+        self.fMediaAgent.audio_set_volume (v)
     
     def Get_Time (self):
         return self.fMediaInfoCurrentTime # in ms
@@ -147,9 +152,12 @@ class TMediaPlayer:
         self.fDelegate.Handle_Track_Playout_Finished ()
         self.__DbgLogEvent ("MediaPlayerEndReached (%s)" % arg)
   
-    def _Event_MediaPlayerOpening (self, arg):
-        curTitle = self.fMediaAgent.get_title ()
+    def _Event_MediaPlayerMediaChanged (self, arg):
         self.fDelegate.Handle_Track_Preload_Finished ()
+        self.__DbgLogEvent ("MediaPlayerMediaChanged (%s)" % arg)
+  
+    def _Event_MediaPlayerOpening (self, arg):
+        #curTitle = self.fMediaAgent.get_title ()
         self.__DbgLogEvent ("MediaPlayerOpening (%s)" % arg)
   
     def _Event_MediaPlayerPositionChanged (self, arg):
@@ -249,9 +257,6 @@ class TMediaPlayer:
   
     def _Event_MediaPlayerLengthChanged (self, arg):
         self.__DbgLogEvent ("MediaPlayerLengthChanged (%s)" % arg)
-  
-    def _Event_MediaPlayerMediaChanged (self, arg):
-        self.__DbgLogEvent ("MediaPlayerMediaChanged (%s)" % arg)
   
     def _Event_MediaPlayerMuted (self, arg):
         self.__DbgLogEvent ("MediaPlayerMuted (%s)" % arg)

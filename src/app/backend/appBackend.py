@@ -27,6 +27,7 @@ class TBackend:
     
     def Request_Media_SetVolume (self, xVolume):
         print ("TBackend::SetVolume (%s)" %xVolume)
+        self.fMediaSystem.Request_Media_SetVolume (xVolume)
 
     def Request_Playback_Pause (self):
         print ("TBackend::Pause ()")
@@ -38,7 +39,7 @@ class TBackend:
     
     def Request_Track_Load (self, iTrack):
         print ("TBackend::LoadTrack (%s)" % iTrack)
-        self.fController.Handle (self.fController.kEventBackendMediaPlayerPreloaded) # <--- for debugging only - in production, TMediaPlayer will call ::Handle_Track_Preload_Finished ()
+        self.fMediaSystem.Request_Track_Load ("/home/peter/Documents/dev/python/MyPlayer/assets/airtone_-_reCreation.mp3")
     
     def SetOthers (self, controller, mediaSystem):
         self.fController  = controller
