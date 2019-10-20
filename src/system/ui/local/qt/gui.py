@@ -264,10 +264,7 @@ class Ui_MainWindow (QObject):
         '''
         self.fLstSongs.clear ()
         for x in items:
-            a = x['artist']
-            t = x['title']
-            e = "%s - %s" % (a, t)
-            print(e)
+            e = "%s - %s" % (x['artist'], x['title'])
             self.fLstSongs.addItem (e)
 
     def _setupUi(self, MainWindow):
