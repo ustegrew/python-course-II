@@ -68,7 +68,6 @@ class Ui_MainWindow (QObject):
         app.aboutToQuit.connect (self._Handle_AppExit)
         MainWindow = QtGui.QMainWindow()
         self._setupUi(MainWindow)
-        self.SetPlaylist (["a", "b", "c"])
         MainWindow.show()
         sys.exit(app.exec_())
 
