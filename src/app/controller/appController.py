@@ -76,8 +76,9 @@ class TController:
             # ~~~~~ FrontendInitFinished
             if event == self.kEventFrontendInitFinished:
                 self.fState = self.kStateWait
-                self._SetTrack (0)
-                self._SetVolume (50)
+                self._SetTracklist ()
+                self._SetTrack     (0)
+                self._SetVolume    (50)
 
                 
         # ---------------- State: Wait            --------------------
@@ -229,6 +230,10 @@ class TController:
     
     def _SetTrack (self, iTrack):
         self.fBackend.Request_Track_Load (iTrack)
+    
+    def _SetTracklist (self):
+        tt = self.fBackend.GetTracklist ()
+        self.fFrontend.SetPlaylist (tt)
     
     def _SetPlaying (self, doPlay):
         if  doPlay:
