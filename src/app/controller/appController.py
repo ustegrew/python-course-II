@@ -68,6 +68,7 @@ class TController:
             # ~~~~~ FrontendInitStarted
             if event == self.kEventFrontendInitStarted:
                 self.fState = self.kStateInitializing
+                self._DumpTransition (state0, event, self.fState)
 
                 
         # ---------------- State: Initializing    --------------------
@@ -76,6 +77,7 @@ class TController:
             # ~~~~~ FrontendInitFinished
             if event == self.kEventFrontendInitFinished:
                 self.fState = self.kStateWait
+                self._DumpTransition (state0, event, self.fState)
                 self._SetTracklist ()
                 self._SetTrack     (0)
                 self._SetVolume    (50)
@@ -87,17 +89,21 @@ class TController:
             # ~~~~~ FrontendExitStarted
             if event == self.kEventFrontendExitStarted:
                 self.fState = self.kStateTerminating
+                self._DumpTransition (state0, event, self.fState)
             # ~~~~~ FrontendChoseSong
             elif event == self.kEventFrontendChoseSong:
                 self.fState = self.kStateWait
+                self._DumpTransition (state0, event, self.fState, "iTrack", paramValue)
                 self._SetTrack (paramValue)
             # ~~~~~ BackendMediaPlayerPreloaded
             elif event == self.kEventBackendMediaPlayerPreloaded:
                 self.fState = self.kStatePaused
+                self._DumpTransition (state0, event, self.fState)
             # ~~~~~ FrontendVolumeUpdate
             elif event == self.kEventFrontendVolumeUpdate:
                 self.fState = self.kStateWait
-                self._SetVolume (param)
+                self._DumpTransition (state0, event, self.fState, "xVolume", paramValue)
+                self._SetVolume (paramValue)
 
                 
         # ---------------- State: Pause           --------------------
@@ -106,18 +112,22 @@ class TController:
             # ~~~~~ FrontendChoseSong
             if event == self.kEventFrontendChoseSong:
                 self.fState = self.kStateWait
+                self._DumpTransition (state0, event, self.fState, "iTrack", paramValue)
                 self._SetTrack (paramValue)
             # ~~~~~ FrontendExitStarted
             elif event == self.kEventFrontendExitStarted:
                 self.fState = self.kStateTerminating
+                self._DumpTransition (state0, event, self.fState)
             # ~~~~~ FrontendPlayToggled
             elif event == self.kEventFrontendPlayToggled:
                 self.fState = self.kStatePlaying
+                self._DumpTransition (state0, event, self.fState)
                 self._SetPlaying (True)
             # ~~~~~ FrontendVolumeUpdate
             elif event == self.kEventFrontendVolumeUpdate:
                 self.fState = self.kStatePaused
-                self._SetVolume (param)
+                self._DumpTransition (state0, event, self.fState, "xVolume", paramValue)
+                self._SetVolume (paramValue)
 
                 
         # ---------------- State: Playing         --------------------
@@ -126,25 +136,31 @@ class TController:
             # ~~~~~ FrontendChoseSong
             if event == self.kEventFrontendChoseSong:
                 self.fState = self.kStateWait
+                self._DumpTransition (state0, event, self.fState, "iTrack", paramValue)
                 self._SetTrack (paramValue)
             # ~~~~~ FrontendExitStarted
             elif event == self.kEventFrontendExitStarted:
                 self.fState = self.kStateTerminating
+                self._DumpTransition (state0, event, self.fState)
             # ~~~~~ FrontendPlayToggled
             elif event == self.kEventFrontendPlayToggled:
                 self.fState = self.kStatePaused
+                self._DumpTransition (state0, event, self.fState)
                 self._SetPlaying (False)
             # ~~~~~ BackendMediaPlayerPositionUpdate
             elif event == self.kEventBackendMediaPlayerPositionUpdate:
                 self.fState = self.kStatePlaying
-                self._SetPosition (param)
+                self._DumpTransition (state0, event, self.fState, "xPosition", paramValue)
+                self._SetPosition (paramValue)
             # ~~~~~ BackendMediaPlayerSongFinished
             elif event == self.kEventBackendMediaPlayerSongFinished:
-                self.fState = self.kStateWait
+                self.fState = self.kStatePaused
+                self._DumpTransition (state0, event, self.fState)
             # ~~~~~ FrontendVolumeUpdate
             elif event == self.kEventFrontendVolumeUpdate:
                 self.fState = self.kStatePlaying
-                self._SetVolume (param)
+                self._DumpTransition (state0, event, self.fState, "xVolume", paramValue)
+                self._SetVolume (paramValue)
 
                 
         # ---------------- State: Terminating     --------------------
@@ -153,10 +169,12 @@ class TController:
             # ~~~~~ FrontendExitFinished
             if event == self.kEventFrontendExitFinished:
                 self.fState = self.kStateTerminated
+                self._DumpTransition(state0, event, self.fState)
 
                 
         # ---------------- State: Terminated      --------------------
         elif self.fState == self.kStateTerminated:
+            self._DumpTransition(state0, event, self.fState)
             pass
        
         self.fLock.release ()
@@ -164,10 +182,6 @@ class TController:
         # Set UI (only major changes) and dump state change to console.
         if doSetUI:
             self._SetUI ()
-        if paramKey is None:
-            self._DumpTransition(state0, event, self.fState)
-        else:
-            self._DumpTransition(state0, event, self.fState, paramKey, paramValue)
     
     def SetOthers (self, backend, frontend):
         self.fBackend       = backend
